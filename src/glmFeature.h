@@ -14,13 +14,12 @@
 
 #include "glmMesh.h"
 
-class glmFeature {
+class glmFeature : public glmMesh {
 public:
 
     glmFeature(){};
     virtual ~glmFeature(){};
     
-    glmMesh         geometry;
     std::string     idString;
     
 private:

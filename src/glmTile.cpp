@@ -20,38 +20,30 @@ bool glmTile::load(int _tileX, int _tileY, int _zoom){
     zoom = _zoom;
     
     glmGeometryBuilder builder;
-    builder.setCenter(19294,24642,16);
+    builder.setOffset(19294,24642,16);
     builder.load(tileX, tileY, zoom, *this);
 }
 
-void glmTile::draw(){
-    for (auto & it : layers["earth"]){
-        glColor3f(0.5,0.5,0.5);
-        it->geometry.draw();
+void glmTile::renderLayer(const std::string &_layerName){
+    for (auto &it : byLayers[_layerName]){
+        it->draw();
     }
-    
-    for (auto & it : layers["landuse"]){
-        glColor3f(0.0,0.7,0.0);
-        it->geometry.draw();
-    }
-    
-    for (auto & it : layers["places"]){
-        glColor3f(0.0,0.5,0.0);
-        it->geometry.draw();
-    }
-    
-    for (auto & it : layers["roads"]) {
-        glColor3f(0.1,0.1,0.1);
-        it->geometry.draw();
-    }
-    
-    for (auto & it : layers["buildings"]){
-        glColor3f(0.9,0.9,0.5);
-        it->geometry.draw();
-    }
+}
 
-    for (auto & it : layers["water"]){
-        glColor3f(0.,0.,0.9);
-        it->geometry.draw();
+void glmTile::renderLayer(const std::vector< std::string > &_layersNames){
+    for (auto &it : _layersNames ) {
+        renderLayer(it);
+    }
+}
+
+void glmTile::renderId(const std::string &_idString){
+    for (auto &it : byId[_idString]){
+        it->draw();
+    }
+}
+
+void glmTile::renderId(const std::vector< std::string > &_idStrings){
+    for (auto &it : _idStrings ) {
+        renderId(it);
     }
 }

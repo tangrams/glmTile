@@ -16,10 +16,8 @@
 class glmLabeledFeature : public glmFeature{
 public:
     
-    glmLabeledFeature():
-    type(LABEL_LINE){
-    };
-    virtual ~glmLabeledFeature(){};
+    glmLabeledFeature();
+    virtual ~glmLabeledFeature();
     
     void updateProjection();
     void draw();
@@ -32,6 +30,8 @@ public:
     
     glmText         text;
     LabelType       type;
+    
+    bool            bVisible;
     
 private:
     

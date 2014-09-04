@@ -9,3 +9,7 @@
 
 * [cURL](http://curl.haxx.se/libcurl/)
 * [JsonCpp](https://github.com/open-source-parsers/jsoncpp)
+
+## Notes
+
+Compile with linker flags ```-lcurl```

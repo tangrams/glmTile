@@ -41,16 +41,19 @@ void glmLabelManager::draw(){
             it->text.setFont(font);
         }
         
-        it->draw();        
-//        if (bDebug){
-//            ofSetColor(255, 200);
-//            it->projectedPolyline.draw();
-//        }
-//        
-//        if(it->type == LABEL_AREA){
-//            ofSetColor(255, 0,0,200);
-//            drawCross(it->projectedCentroid);
-//        }
+        if (it->bVisible) {
+            it->draw();
+            
+            if(it->type == LABEL_AREA){
+                drawCross(it->projectedCentroid);
+                it->projectedPolyline.draw();
+            } else if (it->type == LABEL_LINE){
+                it->projectedPolyline.drawStipple();
+            } else if (it->type == LABEL_POINT){
+                drawCross(it->projectedCentroid);
+            }
+        }
+        
     }
     
     bFontChanged = false;

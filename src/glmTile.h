@@ -16,12 +16,20 @@ class glmTile {
 public:
     
     glmTile();
+    virtual ~glmTile(){}
     
     bool load(int _tileX, int _tileY, int _zoom);
-    void draw();
     
-    std::map< std::string, std::vector<glmFeatureRef> > layers;
+    std::map< std::string, std::vector<glmFeatureRef> > byId;
+    std::map< std::string, std::vector<glmFeatureRef> > byLayers;
+
     std::vector<glmLabeledFeatureRef> labelFeatures;
+    
+    void    renderLayer(const std::string &_layerName);
+    void    renderLayer(const std::vector< std::string > &_layersNames);
+    
+    void    renderId(const std::string &_idString);
+    void    renderId(const std::vector< std::string > &_idStrings);
     
     int     tileX, tileY, zoom;
 };
