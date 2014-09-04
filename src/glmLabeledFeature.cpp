@@ -1,12 +1,11 @@
 //
-//  glmTileFeature.cpp
-//  Labeling
+//  glmLabeledFeature.cpp
 //
-//  Created by Patricio Gonzalez Vivo on 9/3/14.
+//  Created by Patricio Gonzalez Vivo on 9/4/14.
 //
 //
 
-#include "glmTileFeature.h"
+#include "glmLabeledFeature.h"
 
 void glmLabeledFeature::updateProjection(){
     if (type == LABEL_LINE || type == LABEL_AREA){

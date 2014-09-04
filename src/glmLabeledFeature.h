@@ -1,38 +1,19 @@
 //
-//  glmTileFeature.h
-//  Labeling
+//  glmLabeledFeature.h
 //
-//  Created by Patricio Gonzalez Vivo on 8/27/14.
+//  Created by Patricio Gonzalez Vivo on 9/4/14.
 //
 //
 
 #pragma once
 
-//  TODO: use default one
-//
-//#include <memory>
-#include <tr1/memory>
+#include "glmFeature.h"
 
-#include "glmPolyline.h"
-#include "glmMesh.h"
 #include "glmText.h"
+#include "glmPolyline.h"
 
-class glmTileFeature {
-public:
 
-    glmTileFeature(){};
-    virtual ~glmTileFeature(){};
-    
-    glmMesh         geometry;
-    std::string     idString;
-    
-private:
-    
-};
-
-typedef std::tr1::shared_ptr<glmTileFeature> glmTileFeatureRef;
-
-class glmLabeledFeature : public glmTileFeature{
+class glmLabeledFeature : public glmFeature{
 public:
     
     glmLabeledFeature():
@@ -51,7 +32,7 @@ public:
     
     glmText         text;
     LabelType       type;
-
+    
 private:
     
 };
