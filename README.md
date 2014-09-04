@@ -4,5 +4,6 @@
 	-	[openGL](http://www.opengl.org/)
 	- [glm](http://glm.g-truc.net/0.9.5/index.html)
 	-	[JsonCpp](https://github.com/open-source-parsers/jsoncpp)]
+	- [FTGL](http://sourceforge.net/projects/ftgl/)
 
 * [cURL](http://curl.haxx.se/libcurl/)
