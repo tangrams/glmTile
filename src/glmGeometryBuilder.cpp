@@ -52,31 +52,8 @@ lineWidth(5.5)
     
 }
 
-glmTile glmGeometryBuilder::download(int _tileX, int _tileY, int _zoom){
+glmTile glmGeometryBuilder::getFromFile(std::string _filename){
     
-    //  TODO: get JSON file from the web
-    //
-    std::ostringstream strStream;
-    strStream<<"http://vector.mapzen.com/osm/all/"<<_zoom<<"/"<<_tileX<<"/"<<_tileY<<".json";
-    
-    std::string tmp = getURL(strStream.str());
-    
-    std::tr1::shared_ptr<Json::Value> jsonVal(new Json::Value);
-    
-    int length = tmp.size();
-    Json::Reader jsonReader;
-    jsonReader.parse(tmp.c_str(), tmp.c_str() + length, *(jsonVal.get()));
-    
-    glmTile newTile;
-    newTile.tileX = _tileX;
-    newTile.tileY = _tileY;
-    newTile.zoom = _zoom;
-    load( *(jsonVal.get()), newTile );
-    return newTile;
-}
-
-glmTile glmGeometryBuilder::open(std::string _filename){
-
     std::ifstream inputStream(_filename.c_str(),std::ifstream::in);
     if(inputStream.bad()){
 		return glmTile();
@@ -92,6 +69,33 @@ glmTile glmGeometryBuilder::open(std::string _filename){
     glmTile newTile;
     load(m_jsonRoot, newTile);
     return newTile;
+}
+
+glmTile glmGeometryBuilder::getFromWeb(int _tileX, int _tileY, int _zoom){
+    glmTile newTile;
+    load(_tileX, _tileY,_zoom,newTile);
+    return newTile;
+}
+
+void glmGeometryBuilder::load(int _tileX, int _tileY, int _zoom, glmTile &_tile){
+    //  TODO: get JSON file from the web
+    //
+    std::ostringstream strStream;
+    strStream<<"http://vector.mapzen.com/osm/all/"<<_zoom<<"/"<<_tileX<<"/"<<_tileY<<".json";
+    
+    std::string tmp = getURL(strStream.str());
+    
+    std::tr1::shared_ptr<Json::Value> jsonVal(new Json::Value);
+    
+    int length = tmp.size();
+    Json::Reader jsonReader;
+    jsonReader.parse(tmp.c_str(), tmp.c_str() + length, *(jsonVal.get()));
+    
+    _tile.tileX = _tileX;
+    _tile.tileY = _tileY;
+    _tile.zoom = _zoom;
+    load( *(jsonVal.get()), _tile );
+   
 }
 
 void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){

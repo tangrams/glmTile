@@ -21,13 +21,15 @@ public:
     void setCenter(glm::vec3 _center);
     void setCenter(int _tileX, int _tileY, int _zoom);
     
-    glmTile open(std::string _fileName);
-    glmTile download(int _tileX, int _tileY, int _zoom);
+    glmTile getFromFile(std::string _fileName);
+    glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
+    
+    void load(int _tileX, int _tileY, int _zoom, glmTile &_tile);
+    void load(Json::Value &_jsonRoot, glmTile &_tile);
     
     float lineWidth;
     
 private:
-    void load(Json::Value &_jsonRoot, glmTile &_tile);
     
     void buildLayer(Json::Value &_jsonRoot, const std::string &_layerName, glmTile &_tile, float _minHeight = 0.);
     

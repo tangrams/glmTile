@@ -17,6 +17,7 @@ public:
     
     glmTile();
     
+    bool load(int _tileX, int _tileY, int _zoom);
     void draw();
     
     std::map< std::string, std::vector<glmFeatureRef> > layers;

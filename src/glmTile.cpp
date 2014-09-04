@@ -7,9 +7,21 @@
 
 #include "glmTile.h"
 
+#include "glmGeometryBuilder.h"
+
 glmTile::glmTile():
 tileX(-1), tileY(-1), zoom(-1)
 {
+}
+
+bool glmTile::load(int _tileX, int _tileY, int _zoom){
+    tileX = _tileX;
+    tileY = _tileY;
+    zoom = _zoom;
+    
+    glmGeometryBuilder builder;
+    builder.setCenter(19294,24642,16);
+    builder.load(tileX, tileY, zoom, *this);
 }
 
 void glmTile::draw(){
