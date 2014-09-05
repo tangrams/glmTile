@@ -19,15 +19,14 @@ public:
     glmLabelManager();
     virtual ~glmLabelManager();
     
-    void addLabelsFrom(glmTile &_tile);
-    
     void setFont(FTFont *_font);
     
     void updateProjection();
     
     void draw();
     
-    std::vector<glmLabeledFeatureRef> labels;
+    std::vector<glmLabeledFeatureLineRef> lineLabels;
+    std::vector<glmLabeledFeaturePointRef> pointLabels;
     
 private:
     FTFont  *font;

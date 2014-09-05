@@ -28,8 +28,5 @@ public:
     void    renderLayer(const std::string &_layerName);
     void    renderLayer(const std::vector< std::string > &_layersNames);
     
-    void    renderId(const std::string &_idString);
-    void    renderId(const std::vector< std::string > &_idStrings);
-    
     int     tileX, tileY, zoom;
 };

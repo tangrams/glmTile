@@ -35,15 +35,3 @@ void glmTile::renderLayer(const std::vector< std::string > &_layersNames){
         renderLayer(it);
     }
 }
-
-void glmTile::renderId(const std::string &_idString){
-    for (auto &it : byId[_idString]){
-        it->draw();
-    }
-}
-
-void glmTile::renderId(const std::vector< std::string > &_idStrings){
-    for (auto &it : _idStrings ) {
-        renderId(it);
-    }
-}

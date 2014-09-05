@@ -7,62 +7,44 @@
 
 #include "glmLabelPoint.h"
 
-glmLabelPoint::glmLabelPoint(float _x, float _y, float _text_width){
-    x = _x;
-    y = _y;
-    z = 0.;
-    label.width = _text_width;
-    label.height = 14;
-    label.x = 0;
-    label.y = -label.height;
+glmLabelPoint::glmLabelPoint(): margin(5.0), angle(QUARTER_PI), bChanged(true) {
     
-    area = sqrt(label.width*label.width+label.height*label.height)*2.;
-    
-    glm::vec2 mutual_repulsion;
-    mutual_repulsion.x = 2. * cos(QUARTER_PI);
-    mutual_repulsion.y = 2. * sin(QUARTER_PI);
-    angle = atan2(mutual_repulsion.y, mutual_repulsion.x);
-    
-    margin = 5.0;
 }
 
-bool glmLabelPoint::compute(glmLabelPoint &_other){
+glmLabelPoint::glmLabelPoint(const glm::vec3 &_pos, const glmRectangle &_textBounding ){
+    setPosition(_pos);
+    setLabelBoundingBox(_textBounding);
+}
+
+glmLabelPoint::~glmLabelPoint(){
     
-    if (glm::distance((glm::vec3)*this,(glm::vec3)_other) <= area){
-        
-        if(label.inside(_other)){
-            glm::vec3 diff = (_other-label.getCenter());
-            double a = atan2(diff.y,diff.x);
-            if (a < -PI) a += PI*2.;
-            if (a > PI) a -= PI*2.;
-            
-            angle += a*0.01;
-            wrapRad(angle);
-            
-            return true;
-        } else if(label.intersects(_other.label)){
-            glm::vec3 diff = (_other.label.getCenter()-label.getCenter());
-            double a = atan2(diff.y,diff.x);
-            if (a < -PI) a += PI*2.;
-            if (a > PI) a -= PI*2.;
-            
-            angle += a*0.01;
-            wrapRad(angle);
-            
-            _other.angle -= a*0.01;
-            wrapRad(_other.angle);
-            
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
+}
+
+void glmLabelPoint::setPosition(const glm::vec3 &_pos){
+    x = _pos.x;
+    y = _pos.y;
+    z = _pos.z;
+    
+    bChanged = true;
+}
+
+void glmLabelPoint::setLabelAngle(const double &_radiant){
+    angle = _radiant;
+    bChanged = true;
+}
+
+void glmLabelPoint::setLabelMargin(const float &_margin){
+    margin = _margin;
+    bChanged = true;
+}
+
+void glmLabelPoint::setLabelBoundingBox(const glmRectangle &_textBoundingBox ){
+    label.width = _textBoundingBox.width;
+    label.height = _textBoundingBox.height;
+    bChanged = true;
 }
 
 void glmLabelPoint::update(){
-    
     label.x = x + margin * cos(angle);
     label.y = y + margin * sin(-angle);
     
@@ -71,22 +53,22 @@ void glmLabelPoint::update(){
         //
         label.x += 0.0;
         label.y += mapValue(angle,
-                         QUARTER_PI,     -QUARTER_PI,
-                         -label.height,  0);
+                            QUARTER_PI,     -QUARTER_PI,
+                            -label.height,  0);
         
     } else if (angle >= QUARTER_PI && angle <= QUARTER_PI*3.){
         //  NORTH
         //
         label.x += mapValue(angle,
-                         QUARTER_PI*3.,  QUARTER_PI,
-                         -label.width,   0);
+                            QUARTER_PI*3.,  QUARTER_PI,
+                            -label.width,   0);
         label.y += -label.height;
     } else if (angle <= -QUARTER_PI && angle >= -QUARTER_PI*3.){
         //  SOUTH
         //
         label.x += mapValue(angle,
-                         -QUARTER_PI*3., -QUARTER_PI,
-                         -label.width,   0);
+                            -QUARTER_PI*3., -QUARTER_PI,
+                            -label.width,   0);
         label.y += 0.0;
     } else if (angle > QUARTER_PI*3. || angle < -QUARTER_PI*3. ){
         //  WEST
@@ -95,28 +77,54 @@ void glmLabelPoint::update(){
         
         if(angle > 0){
             label.y += mapValue(angle,
-                             QUARTER_PI*3., PI,
-                             -label.height, -label.height*0.5);
+                                QUARTER_PI*3., PI,
+                                -label.height, -label.height*0.5);
         } else {
             label.y += mapValue(angle,
-                             -PI, -QUARTER_PI*3.,
-                             -label.height*0.5,0.0);
+                                -PI, -QUARTER_PI*3.,
+                                -label.height*0.5,0.0);
         }
     }
+    bChanged = false;
 }
-void glmLabelPoint::draw(bool _bDebug){
-    glColor3f(1,1,1);
-    drawCross(*this);
+
+glmRectangle glmLabelPoint::getLabel() const {
+    return label;
+}
+
+bool glmLabelPoint::isOver(const glmLabelPoint &_other){
+    if(bChanged){
+        update();
+    }
+    return label.intersects(_other.getLabel()) || isInside(_other);
+}
+
+bool glmLabelPoint::isInside(const glm::vec3 &_point){
+    if(bChanged){
+        update();
+    }
+    return label.inside(_point);
+}
+
+void glmLabelPoint::drawPoint(const float &_width){
+    drawCross(*this,_width);
+}
+
+void glmLabelPoint::drawText(glmText &_text){
+    if(bChanged){
+        update();
+    }
+    _text.drawOnRectangle(label);
+}
+
+void glmLabelPoint::drawLabel(const float &_coornersWidth){
+    if(bChanged){
+        update();
+    }
     
-    if(_bDebug){
-        
-        glm::vec3 ancherPoint = glm::vec3(x + margin * cos(angle),
-                                          y + margin * sin(-angle),
-                                          0.0f);
-        glColor3f(0.0,1.0,1.0);
-        drawLine(*this, ancherPoint);
-        
-        glColor3f(1,0,0);
+    if(_coornersWidth == 0.0){
         label.drawBorders();
+    } else {
+        label.drawCorners(_coornersWidth);
     }
 }

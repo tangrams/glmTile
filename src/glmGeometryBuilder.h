@@ -11,21 +11,33 @@
 #include "glmTools.h"
 
 #include "glmTile.h"
+#include "glmLabelManager.h"
+
+#include <memory>
 
 class glmGeometryBuilder {
 public:
     
     glmGeometryBuilder();
     virtual ~glmGeometryBuilder(){};
-
+    
+    static glmGeometryBuilder* GetInstance() {
+        static glmGeometryBuilder *instance = new glmGeometryBuilder();
+        return instance;
+    }
+    
+    //  Setting up
+    //
     void setOffset(glm::vec3 _center);
     void setOffset(int _tileX, int _tileY, int _zoom);
-    
-    glmTile getFromFile(std::string _fileName);
-    glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
-    
+    void setLabelManager(glmLabelManager *_lm);
+
+    //  Loading the data
+    //
     void load(int _tileX, int _tileY, int _zoom, glmTile &_tile);
     void load(Json::Value &_jsonRoot, glmTile &_tile);
+    glmTile getFromFile(std::string _fileName);
+    glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
     
     float lineWidth;
     
@@ -45,4 +57,5 @@ private:
     
     glm::vec3 m_geometryOffset;
     
+    glmLabelManager *labelManager;
 };
