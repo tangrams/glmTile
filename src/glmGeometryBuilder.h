@@ -39,9 +39,9 @@ public:
     glmTile getFromFile(std::string _fileName);
     glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
     
-    float lineWidth;
-    
     std::map< std::string, glm::vec4 > LayerColorPalette;
+    
+    float lineWidth;
     
 private:
     

@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "glmFeature.h"
-#include "glmLabeledFeature.h"
-
 #include <map>
+
+#include "glmFeature.h"
+#include "glmFeatureLabel.h"
 
 class glmTile {
 public:
@@ -23,7 +23,7 @@ public:
     std::map< std::string, std::vector<glmFeatureRef> > byId;
     std::map< std::string, std::vector<glmFeatureRef> > byLayers;
 
-    std::vector<glmLabeledFeatureRef> labelFeatures;
+    std::vector<glmFeatureLabelRef> labeledFeatures;
     
     void    renderLayer(const std::string &_layerName);
     void    renderLayer(const std::vector< std::string > &_layersNames);

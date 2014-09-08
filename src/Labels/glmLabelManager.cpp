@@ -9,20 +9,25 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): font(NULL), bFontChanged(true) {
+glmLabelManager::glmLabelManager(): m_bFontChanged(true) {
 }
 
 glmLabelManager::~glmLabelManager(){
     
 }
 
-void glmLabelManager::setFont(FTFont *_font){
-    font = _font;
-    bFontChanged = true;
+void glmLabelManager::setFont(glmFont *_font){
+    m_font = glmFontRef(_font);
+    m_bFontChanged = true;
 }
 
-bool depthSort(const glmLabeledFeaturePointRef &_A, const glmLabeledFeaturePointRef &_B){
-    return _A->labelAnchoir.z < _B->labelAnchoir.z;
+void glmLabelManager::setFont(glmFontRef &_font){
+    m_font = _font;
+    m_bFontChanged = true;
+}
+
+bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
+    return _A->getDepth() < _B->getDepth();
 }
 
 void glmLabelManager::updateProjection(){
@@ -36,7 +41,7 @@ void glmLabelManager::updateProjection(){
     for (int i = 0; i < pointLabels.size(); i++) {
         if(pointLabels[i]->bVisible){
             for (int j = i-1; j >= 0 ; j--) {
-                if (pointLabels[i]->labelAnchoir.isOver(pointLabels[j]->labelAnchoir) ){
+                if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
                     pointLabels[i]->bVisible = false;
                     break;
                 }
@@ -53,9 +58,8 @@ void glmLabelManager::updateProjection(){
 void glmLabelManager::draw(){
     for (auto &it : pointLabels) {
         
-        if(bFontChanged){
-            it->text.setFont(font);
-            it->labelAnchoir.setLabelBoundingBox(it->text.getBoundingBox());
+        if(m_bFontChanged){
+            it->setFont(m_font);
         }
         
         if (it->bVisible) {
@@ -66,8 +70,8 @@ void glmLabelManager::draw(){
     
     for (auto &it : lineLabels) {
         
-        if(bFontChanged){
-            it->text.setFont(font);
+        if(m_bFontChanged){
+            it->setFont(m_font);
         }
         
         if (it->bVisible) {
@@ -76,5 +80,5 @@ void glmLabelManager::draw(){
         
     }
     
-    bFontChanged = false;
+    m_bFontChanged = false;
 }
