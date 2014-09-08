@@ -8,7 +8,7 @@
 
 #include "glmFeatureLabelPoint.h"
 
-glmFeatureLabelPoint::glmFeatureLabelPoint():m_centroid(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(5.0), m_angle(QUARTER_PI) {
+glmFeatureLabelPoint::glmFeatureLabelPoint():m_centroid(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(8.0), m_angle(HALF_PI) {
 };
 
 glmFeatureLabelPoint::~glmFeatureLabelPoint(){
@@ -30,8 +30,8 @@ void glmFeatureLabelPoint::setLabelMargin(const float &_margin){
     m_bChanged = true;
 }
 
-float glmFeatureLabelPoint::getDepth() const{
-    return m_anchorPoint.z;
+glm::vec3 glmFeatureLabelPoint::getScreenPosition() const{
+    return m_anchorPoint;
 }
 
 glmRectangle glmFeatureLabelPoint::getLabel() const{

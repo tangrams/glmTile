@@ -27,7 +27,7 @@ void glmLabelManager::setFont(glmFontRef &_font){
 }
 
 bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
-    return _A->getDepth() < _B->getDepth();
+    return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
 }
 
 void glmLabelManager::updateProjection(){
@@ -53,6 +53,31 @@ void glmLabelManager::updateProjection(){
         it->updateProjection();
     }
 
+}
+
+void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _height){
+    for (auto &it : pointLabels) {
+        if (it->bVisible) {
+            glm::vec3 pos = it->getAnchorPoint();
+            
+            if(pos.x>0
+               &&pos.x<_width
+               &&pos.y>0
+               &&pos.y<_height){
+                
+                int index = ((int)pos.y) * _width + (int)pos.x;
+                float depth = _depthBuffer[ index*3 ];
+                
+                if(pos.z == depth){
+                    it->bVisible = true;
+                } else {
+                    it->bVisible = false;
+                }
+            }
+            
+            
+        }
+    }
 }
 
 void glmLabelManager::draw(){

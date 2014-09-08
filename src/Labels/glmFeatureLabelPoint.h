@@ -20,7 +20,7 @@ public:
     void    setLabelAngle(const double &_radiant);
     void    setLabelMargin(const float &_margin);
     
-    float   getDepth() const;
+    glm::vec3 getScreenPosition() const;
     
     glmRectangle getLabel() const;
     glm::vec3    getAnchorPoint() const;

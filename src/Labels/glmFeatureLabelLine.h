@@ -18,7 +18,7 @@ public:
     glmFeatureLabelLine();
     virtual ~glmFeatureLabelLine();
     
-    float   getDepth() const;
+    glm::vec3 getScreenPosition() const;
     void    updateProjection();
     void    draw();
     
@@ -27,6 +27,10 @@ public:
 protected:
     void    updateCached();
     
+    void    drawWordByWord(float _offset);
+    void    drawLetterByLetter(float _offset);
+    
+    glm::vec3   m_anchorPoint;
     glmSmartLine m_anchorLine;
     glmRectangle m_label;
     
