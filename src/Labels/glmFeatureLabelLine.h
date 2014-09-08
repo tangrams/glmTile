@@ -23,9 +23,7 @@ public:
     void    draw();
     
     glmPolyline polyline;
-    
-    glm::vec2 offset;
-    
+
 protected:
     void    updateCached();
     
@@ -34,6 +32,8 @@ protected:
     
     std::vector<float> m_wordsWidth;
     std::vector<float> m_lettersWidth;
+    
+    glm::vec2 m_offset;
 };
 
 typedef std::tr1::shared_ptr<glmFeatureLabelLine> glmFeatureLabelLineRef;
