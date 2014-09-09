@@ -23,6 +23,7 @@ public:
     void setFont(glmFont *_font);
     void setFont(glmFontRef &_font);
     
+    void updateFont();
     void updateProjection();
     void updateOcclusions(float *_depthBuffer, int _width, int _height);
     

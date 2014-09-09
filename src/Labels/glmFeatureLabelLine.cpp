@@ -63,8 +63,6 @@ void glmFeatureLabelLine::updateProjection(){
         glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
         glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
         
-        std::cout << viewport.x << "," << viewport.y << "," << viewport.z << "," << viewport.w << std::endl;
-        
         m_anchorLine.clear();
         for (int i = 0; i < polyline.size(); i++) {
             glm::vec3 v = glm::project(polyline[i], mvmatrix, projmatrix, viewport);
@@ -80,7 +78,7 @@ void glmFeatureLabelLine::updateProjection(){
                     && m_label.width < m_anchorLine.getLength();
         
         if(bVisible){
-            seedAnchorOn(0.5);
+//            seedAnchorOn(0.5);
 //            seedAnchorsEvery(200);
         }
         

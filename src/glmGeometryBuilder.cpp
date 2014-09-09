@@ -348,7 +348,7 @@ void glmGeometryBuilder::pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, 
 void glmGeometryBuilder::lineJson2Mesh(Json::Value &lineJson, glmMesh &_mesh, float _minHeight){
     glmPolyline polyline;
     lineJson2Polyline(lineJson,polyline,_minHeight);
-    polyline.addAsLineToMesh(_mesh, lineWidth);
+    polyline.addAsLineToMesh(_mesh, lineWidth, false);
 }
 
 //---------------------------------------------------------------------------

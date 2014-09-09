@@ -30,6 +30,20 @@ bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef 
     return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
 }
 
+void glmLabelManager::updateFont(){
+    if(m_bFontChanged){
+        for (auto &it : pointLabels) {
+            it->setFont(m_font);
+        }
+        
+        for (auto &it : lineLabels) {
+            it->setFont(m_font);
+        }
+        
+        m_bFontChanged = false;
+    }
+}
+
 void glmLabelManager::updateProjection(){
     
     for (auto &it : pointLabels) {
@@ -50,6 +64,9 @@ void glmLabelManager::updateProjection(){
     }
     
     for (auto &it : lineLabels) {
+        if(m_bFontChanged){
+            it->setFont(m_font);
+        }
         it->updateProjection();
     }
 
@@ -82,11 +99,6 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
 
 void glmLabelManager::draw(){
     for (auto &it : pointLabels) {
-        
-        if(m_bFontChanged){
-            it->setFont(m_font);
-        }
-        
         if (it->bVisible) {
             it->draw();
         }
@@ -94,16 +106,8 @@ void glmLabelManager::draw(){
     }
     
     for (auto &it : lineLabels) {
-        
-        if(m_bFontChanged){
-            it->setFont(m_font);
-        }
-        
         if (it->bVisible) {
             it->draw();
         }
-        
     }
-    
-    m_bFontChanged = false;
 }
