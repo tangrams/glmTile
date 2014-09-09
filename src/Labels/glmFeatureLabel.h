@@ -20,8 +20,6 @@ public:
     void setFont(glmFontRef &_fontRef);
     void setText(const std::string &_text);
     
-    virtual glm::vec3 getScreenPosition() const = 0;
-    
     virtual void updateProjection() = 0;
     virtual void draw() = 0;
     
