@@ -25,6 +25,7 @@ public:
 
 protected:
     void    updateCached();
+    void    seedAnchorOn(float _pct = 0.5);
     void    seedAnchorsEvery(float _distance);
     
     void    drawWordByWord(float _offset);

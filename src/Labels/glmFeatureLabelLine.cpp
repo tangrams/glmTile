@@ -79,12 +79,32 @@ void glmFeatureLabelLine::updateProjection(){
                     && m_anchorLine.getLength() > 0.0
                     && m_label.width < m_anchorLine.getLength();
         
-        seedAnchorsEvery(200);
+        if(bVisible){
+            seedAnchorOn(0.5);
+//            seedAnchorsEvery(200);
+        }
         
     } else {
         bVisible = false;
     }
 };
+
+void glmFeatureLabelLine::seedAnchorOn(float _pct ){
+    float totalLength = m_anchorLine.getLength();
+    
+    float offsetPct = _pct;
+    while (totalLength*offsetPct - m_label.width*offsetPct + m_label.width > totalLength) {
+        offsetPct -= 0.01;
+    }
+    
+    float offset = totalLength*offsetPct-m_label.width*_pct;
+    if(offset<0.0|| offset > totalLength){
+        return;
+    }
+    
+    m_anchorDistances.clear();
+    m_anchorDistances.push_back(offset);
+}
 
 void glmFeatureLabelLine::seedAnchorsEvery(float _distance){
     float totalLength = m_anchorLine.getLength();
