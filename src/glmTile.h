@@ -16,17 +16,18 @@ class glmTile {
 public:
     
     glmTile();
-    virtual ~glmTile(){}
+    virtual ~glmTile();
     
-    bool load(int _tileX, int _tileY, int _zoom);
+    bool    load(int _tileX, int _tileY, int _zoom);
+    
+    glmMesh getMesh();
+    glmMesh getMeshFor(const std::string &_layerName);
+    glmMesh getMeshFor(const std::vector< std::string > &_layersNames);
     
     std::map< std::string, std::vector<glmFeatureRef> > byId;
     std::map< std::string, std::vector<glmFeatureRef> > byLayers;
 
     std::vector<glmFeatureLabelRef> labeledFeatures;
-    
-    void    renderLayer(const std::string &_layerName);
-    void    renderLayer(const std::vector< std::string > &_layersNames);
-    
+
     int     tileX, tileY, zoom;
 };

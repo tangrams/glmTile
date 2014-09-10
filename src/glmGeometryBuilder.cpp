@@ -157,7 +157,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             //  PARSE POINT
             //
 
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 
                 glmFeatureLabelPointRef labelRef(new glmFeatureLabelPoint());
                 
@@ -169,9 +169,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->pointLabels.push_back(labelRef);
-                }
+                labelManager->pointLabels.push_back(labelRef);
                 
                 feature = labelRef;
             }
@@ -182,8 +180,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             
             //  PARSE MULTI-POINT
             //
-            
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 glmFeatureLabelPointRef labelRef(new glmFeatureLabelPoint());
                 labelRef->setPosition(  glm::vec3(lon2x(geometryJson["coordinates"][0].asFloat()),
                                                   lat2y(geometryJson["coordinates"][1].asFloat()),
@@ -192,9 +189,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 labelRef->setText( propsJson["name"].asString() );
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->pointLabels.push_back(labelRef);
-                }
+                labelManager->pointLabels.push_back(labelRef);
                 
                 feature = labelRef;
             }
@@ -208,7 +203,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             //  PARSE LINE STRING
             //
         
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 glmFeatureLabelLineRef labelRef(new glmFeatureLabelLine());
                 
                 lineJson2Polyline(geometryJson["coordinates"],labelRef->polyline,minHeight);
@@ -216,9 +211,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 labelRef->setText(propsJson["name"].asString());
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->lineLabels.push_back(labelRef);
-                }
+                labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;
             }
@@ -230,16 +223,14 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             //  PARSE MULTI-LINE STRING
             //
             
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 
                 glmFeatureLabelLineRef labelRef(new glmFeatureLabelLine());
                 lineJson2Polyline(geometryJson["coordinates"][0],labelRef->polyline,minHeight);
                 labelRef->setText(propsJson["name"].asString());
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->lineLabels.push_back(labelRef);
-                }
+                labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;
             }
@@ -253,7 +244,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             //  PARSE POLYGON
             //
             
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 glmFeatureLabelPointRef labelRef(new glmFeatureLabelPoint());
                 
                 glmPolyline polyline;
@@ -263,10 +254,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 labelRef->setText(propsJson["name"].asString());
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->pointLabels.push_back(labelRef);
-                }
-                
+                labelManager->pointLabels.push_back(labelRef);
                 feature = labelRef;
             }
             
@@ -274,26 +262,22 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             
         } else if (geometryType.compare("MultiPolygon") == 0) {
             
-            if (propsJson.isMember("name")) {
+            if (propsJson.isMember("name") && labelManager != NULL) {
                 glmFeatureLabelPointRef labelRef(new glmFeatureLabelPoint());
                 
                 glmPolyline polyline;
-                lineJson2Polyline(geometryJson["coordinates"][0], polyline, height);
+                lineJson2Polyline(geometryJson["coordinates"][0][0], polyline, height);
                 
                 labelRef->setPosition(polyline.getBoundingBox().getCenter() + glm::vec3(0,0,height));
                 labelRef->setText(propsJson["name"].asString());
                 
                 _tile.labeledFeatures.push_back(labelRef);
                 
-                if(labelManager != NULL){
-                    labelManager->pointLabels.push_back(labelRef);
-                }
+                labelManager->pointLabels.push_back(labelRef);
                 
                 feature = labelRef;
             }
             
-            //  PARSE MULTI-POLYGON
-            //
             for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
                 polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
             }

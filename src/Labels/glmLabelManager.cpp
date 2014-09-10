@@ -26,10 +26,6 @@ void glmLabelManager::setFont(glmFontRef &_font){
     m_bFontChanged = true;
 }
 
-bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
-    return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
-}
-
 void glmLabelManager::updateFont(){
     if(m_bFontChanged){
         for (auto &it : pointLabels) {
@@ -42,6 +38,10 @@ void glmLabelManager::updateFont(){
         
         m_bFontChanged = false;
     }
+}
+
+bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
+    return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
 }
 
 void glmLabelManager::updateProjection(){
