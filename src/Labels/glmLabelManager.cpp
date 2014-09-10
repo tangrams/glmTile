@@ -26,6 +26,10 @@ void glmLabelManager::setFont(glmFontRef &_font){
     m_bFontChanged = true;
 }
 
+glmFontRef& glmLabelManager::getFont(){
+    return m_font;
+}
+
 void glmLabelManager::updateFont(){
     if(m_bFontChanged){
         for (auto &it : pointLabels) {

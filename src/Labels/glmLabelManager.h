@@ -22,6 +22,8 @@ public:
     
     void setFont(glmFont *_font);
     void setFont(glmFontRef &_font);
+
+    glmFontRef& getFont();
     
     void updateFont();
     void updateProjection();
