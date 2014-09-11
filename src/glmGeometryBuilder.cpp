@@ -91,6 +91,10 @@ void glmGeometryBuilder::load(int _tileX, int _tileY, int _zoom, glmTile &_tile)
 }
 
 void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
+    
+    //  Generate the geometries for these layers...
+    //  ... also record those that have labels.
+    //
     buildLayer(_jsonRoot, "earth", _tile, 0.0);
     buildLayer(_jsonRoot, "landuse", _tile, 1.0);
     
@@ -100,6 +104,17 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     buildLayer(_jsonRoot, "places", _tile, 4.0);
     buildLayer(_jsonRoot, "roads", _tile, 5.0);
     buildLayer(_jsonRoot, "pois", _tile, 6.0);
+    
+    //  TODO:
+    //      - Check for overlaping labeled polylines (usually "roads")
+    //      - and then split them
+
+    for (int i = 0; i < _tile.labeledLines.size(); i++) {
+        
+        //  IS NOT DOING NOTHING
+        //
+        _tile.labeledLines[i]->blocks.push_back(_tile.labeledLines[i]->polyline);
+    }
 }
 
 glmTile glmGeometryBuilder::getFromFile(std::string _filename){
@@ -212,9 +227,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 
                 labelRef->setText(propsJson["name"].asString());
                 _tile.labeledFeatures.push_back(labelRef);
+                _tile.labeledLines.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
-                labelRef->m_centroid = labelRef->polyline.getCentroid();
                 labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;
@@ -233,9 +248,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 lineJson2Polyline(geometryJson["coordinates"][0],labelRef->polyline,minHeight);
                 labelRef->setText(propsJson["name"].asString());
                 _tile.labeledFeatures.push_back(labelRef);
+                _tile.labeledLines.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
-                labelRef->m_centroid = labelRef->polyline.getCentroid();
                 labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;

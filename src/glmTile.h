@@ -11,6 +11,7 @@
 
 #include "glmFeature.h"
 #include "glmFeatureLabel.h"
+#include "glmFeatureLabelLine.h"
 
 class glmTile {
 public:
@@ -28,6 +29,7 @@ public:
     std::map< std::string, std::vector<glmFeatureRef> > byLayers;
 
     std::vector<glmFeatureLabelRef> labeledFeatures;
-
+    std::vector<glmFeatureLabelLineRef> labeledLines;   // Usualy Roads
+    
     int     tileX, tileY, zoom;
 };
