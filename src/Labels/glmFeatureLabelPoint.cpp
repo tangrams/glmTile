@@ -125,7 +125,7 @@ void glmFeatureLabelPoint::updateCached(){
     }
 }
 
-void glmFeatureLabelPoint::draw(){
+void glmFeatureLabelPoint::draw(const glm::vec3 &_camPos){
     if(m_font != NULL){
         if(m_bChanged){
             updateCached();

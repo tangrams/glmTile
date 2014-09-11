@@ -19,18 +19,20 @@ public:
     virtual ~glmFeatureLabelLine();
     
     void    updateProjection();
-    void    draw();
+    void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
+    void    drawLine();
     
     void    seedAnchorAt(float _pct);
     void    seedAnchorsEvery(float _distance);
     
     glmPolyline polyline;
+    glm::vec3   m_centroid;
 
 protected:
     void    updateCached();
 
-    void    drawWordByWord(float _offset);
-    void    drawLetterByLetter(float _offset);
+    void    drawWordByWord(float _offset, const glm::vec3 &_camPos);
+    void    drawLetterByLetter(float _offset, const glm::vec3 &_camPos);
     
     glmSmartLine m_anchorLine;
     glmRectangle m_label;

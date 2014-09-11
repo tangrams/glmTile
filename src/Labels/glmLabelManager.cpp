@@ -78,10 +78,6 @@ void glmLabelManager::updateProjection(){
                 it->setFont(m_font);
             }
             it->updateProjection();
-            
-            if (it->bVisible) {
-                it->seedAnchorAt(0.5);
-            }
         }
         
         m_bProjectionChanged = false;
@@ -123,13 +119,12 @@ void glmLabelManager::draw(){
 //        
 //    }
     
-    float alpha = glm::dot( glm::normalize(m_cameraPos) ,glm::vec3(0.,0.,1.));
-    glColor4f(1., 1., 1., alpha);
-    
     for (auto &it : lineLabels) {
         if (it->bVisible) {
-            it->draw();
+            it->draw(m_cameraPos);
         }
+        
+        it->drawLine(); // Debug
     }
     
     glColor4f(1.,1.,1.,1.);

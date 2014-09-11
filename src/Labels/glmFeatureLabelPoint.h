@@ -29,7 +29,7 @@ public:
     bool    isInside(const glm::vec3 &_point);
     
     void    updateProjection();
-    void    draw();
+    void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
     
 protected:
     void    updateCached();

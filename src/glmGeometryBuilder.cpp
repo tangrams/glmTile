@@ -214,6 +214,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
+                labelRef->m_centroid = labelRef->polyline.getCentroid();
                 labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;
@@ -234,6 +235,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
+                labelRef->m_centroid = labelRef->polyline.getCentroid();
                 labelManager->lineLabels.push_back(labelRef);
                 
                 feature = labelRef;

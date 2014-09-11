@@ -77,11 +77,17 @@ void glmFeatureLabelLine::updateProjection(){
                     && m_anchorLine.getLength() > 0.0
                     && m_label.width < m_anchorLine.getLength();
         
-        if(bVisible){
-//            seedAnchorOn(0.5);
-//            seedAnchorsEvery(200);
+        if (bVisible) {
+            float distance = 500;
+            
+            if(m_label.width + distance > m_anchorLine.getLength()){
+                seedAnchorAt(0.5);
+            } else {
+                seedAnchorsEvery(distance);
+            }
+            
         }
-        
+
     } else {
         bVisible = false;
     }
@@ -108,30 +114,58 @@ void glmFeatureLabelLine::seedAnchorsEvery(float _distance){
     float totalLength = m_anchorLine.getLength();
     float stepLength = m_label.width+_distance;
     
-    m_anchorDistances.clear();
+    //  Calculate how many Labels with margins can fit?
+    int nTimes = totalLength/stepLength;
+    float tLenght = stepLength*(float)nTimes;
     
-    float seed = stepLength*0.5;
+    //  Center the Labels
+    float seed = (totalLength-tLenght)*0.5;
+    
+    //  Add anchor points for seeds every _distance
+    m_anchorDistances.clear();
     while (seed < totalLength-stepLength) {
-        m_anchorDistances.push_back(seed);
+        m_anchorDistances.push_back(seed+_distance*0.5);
         seed += stepLength;
     }
 }
 
-void glmFeatureLabelLine::draw(){
-    if(m_font!=NULL&&m_text!="NONE"&&bVisible){
+void glmFeatureLabelLine::drawLine(){
+    
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x1111);
+	m_anchorLine.draw();
+    glDisable(GL_LINE_STIPPLE);
+    
+    for (int i = 0; i < m_anchorLine.size(); i++) {
         
-        for (auto &it : m_anchorDistances){
-            drawLetterByLetter(it);
+        if(i == 0 ){
+            glLineWidth(2);
+            drawCross(m_anchorLine[i],5);
+        } else {
+            glLineWidth(1);
+            drawCross(m_anchorLine[i]);
         }
         
     }
 }
 
-void glmFeatureLabelLine::drawWordByWord(float _offset){
+void glmFeatureLabelLine::draw(const glm::vec3 &_camPos ){
+    if(m_font!=NULL&&m_text!="NONE"&&bVisible){
+        
+        float alpha = glm::dot( glm::normalize(_camPos-m_centroid),glm::vec3(0.,0.,1.));
+        glColor4f(1., 1., 1., alpha);
+        
+        for (auto &it : m_anchorDistances){
+            drawLetterByLetter(it, _camPos);
+        }
+    }
+}
+
+void glmFeatureLabelLine::drawWordByWord(float _offset, const glm::vec3 &_camPos){
     
 }
 
-void glmFeatureLabelLine::drawLetterByLetter(float _offset){
+void glmFeatureLabelLine::drawLetterByLetter(float _offset, const glm::vec3 &_camPos){
     glm::ivec4 viewport;
     glGetIntegerv(GL_VIEWPORT, &viewport[0]);
     glmRectangle screen = glmRectangle(viewport);
