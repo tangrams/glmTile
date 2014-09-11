@@ -21,7 +21,7 @@ public:
     void    updateProjection();
     void    draw();
     
-    void    seedAnchorOn(float _pct = 0.5);
+    void    seedAnchorAt(float _pct);
     void    seedAnchorsEvery(float _distance);
     
     glmPolyline polyline;

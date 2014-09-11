@@ -48,32 +48,44 @@ bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef 
     return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
 }
 
+void glmLabelManager::updateCameraPosition( const glm::vec3 &_pos ){
+    m_cameraPos = _pos;
+    m_bProjectionChanged = true;
+}
+
 void glmLabelManager::updateProjection(){
     
-    for (auto &it : pointLabels) {
-        it->updateProjection();
-    }
-    
-    std::sort(pointLabels.begin(),pointLabels.end(), depthSort);
-    
-    for (int i = 0; i < pointLabels.size(); i++) {
-        if(pointLabels[i]->bVisible){
-            for (int j = i-1; j >= 0 ; j--) {
-                if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
-                    pointLabels[i]->bVisible = false;
-                    break;
+    if(m_bProjectionChanged){
+        for (auto &it : pointLabels) {
+            it->updateProjection();
+        }
+        
+        std::sort(pointLabels.begin(),pointLabels.end(), depthSort);
+        
+        for (int i = 0; i < pointLabels.size(); i++) {
+            if(pointLabels[i]->bVisible){
+                for (int j = i-1; j >= 0 ; j--) {
+                    if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
+                        pointLabels[i]->bVisible = false;
+                        break;
+                    }
                 }
             }
         }
-    }
-    
-    for (auto &it : lineLabels) {
-        if(m_bFontChanged){
-            it->setFont(m_font);
+        
+        for (auto &it : lineLabels) {
+            if(m_bFontChanged){
+                it->setFont(m_font);
+            }
+            it->updateProjection();
+            
+            if (it->bVisible) {
+                it->seedAnchorAt(0.5);
+            }
         }
-        it->updateProjection();
+        
+        m_bProjectionChanged = false;
     }
-
 }
 
 void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _height){
@@ -102,16 +114,23 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
 }
 
 void glmLabelManager::draw(){
-    for (auto &it : pointLabels) {
-        if (it->bVisible) {
-            it->draw();
-        }
-        
-    }
+    
+//    glColor4f(1.,1.,1.,1.);
+//    for (auto &it : pointLabels) {
+//        if (it->bVisible) {
+//            it->draw();
+//        }
+//        
+//    }
+    
+    float alpha = glm::dot( glm::normalize(m_cameraPos) ,glm::vec3(0.,0.,1.));
+    glColor4f(1., 1., 1., alpha);
     
     for (auto &it : lineLabels) {
         if (it->bVisible) {
             it->draw();
         }
     }
+    
+    glColor4f(1.,1.,1.,1.);
 }

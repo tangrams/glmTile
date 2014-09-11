@@ -87,7 +87,7 @@ void glmFeatureLabelLine::updateProjection(){
     }
 };
 
-void glmFeatureLabelLine::seedAnchorOn(float _pct ){
+void glmFeatureLabelLine::seedAnchorAt(float _pct ){
     float totalLength = m_anchorLine.getLength();
     
     float offsetPct = _pct;

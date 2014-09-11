@@ -25,12 +25,14 @@ public:
 
     glmFontRef& getFont();
     
+    void updateCameraPosition( const glm::vec3 &_pos );
+    
     void updateFont();
     void updateProjection();
     void updateOcclusions(float *_depthBuffer, int _width, int _height);
     
     void draw();
-    
+
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
     
@@ -38,5 +40,8 @@ private:
     
     glmFontRef  m_font;
     
-    bool m_bFontChanged;
+    glm::vec3   m_cameraPos;
+    
+    bool    m_bFontChanged;
+    bool    m_bProjectionChanged;
 };
