@@ -111,6 +111,10 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
 
     for (int i = 0; i < _tile.labeledLines.size(); i++) {
         
+        for (int j = 0; j < _tile.labeledLines.size(); j++) {
+//            _tile.labeledLines[i]->polyline
+        }
+        
         //  IS NOT DOING NOTHING
         //
         _tile.labeledLines[i]->blocks.push_back(_tile.labeledLines[i]->polyline);
