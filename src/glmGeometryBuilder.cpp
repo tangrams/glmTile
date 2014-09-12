@@ -105,10 +105,13 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     //  Add a copy of labeled lines (usually "roads") to a block buffer
     //
     for (auto &it: _tile.labeledLines) {
-        it->polyline.simplify(0.5);
+//        it->polyline.simplify(0.9);
         it->blocks.push_back(it->polyline);
     }
     
+    
+    //  NOT WORKING
+    //
 //    //  For each block of each street
 //    //
 //    for (int iStreet = 0; iStreet < _tile.labeledLines.size() ; iStreet++ ) {

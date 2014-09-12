@@ -31,6 +31,7 @@ protected:
 
     void    seedAnchorAt(glmSmartLine &_anchorLine, float _pct);
     void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance);
+    void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance);
     
     void    drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     void    drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);

@@ -105,11 +105,12 @@ void glmFeatureLabelLine::updateProjection(){
             float distance = 500;   // Multiple labels will apear every XXXXX screen pixels
             
             for (auto &it: m_anchorLines) {
-                //if(m_label.width + distance > it.getLength()){
-                    seedAnchorAt(it,0.5);   //  If only one fit put it on the middle
-                //} else {
-                    //seedAnchorsEvery(it,distance);
-                //}
+//                if(m_label.width + distance > it.getLength()){
+//                    seedAnchorAt(it,0.5);   //  If only one fit put it on the middle
+//                } else {
+//                    seedAnchorsEvery(it,distance);
+//                }
+                seedAnchorOnSegmentsAt(it,distance);
             }
         }
     } else {
@@ -149,6 +150,54 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _dis
     while (seed < totalLength-stepLength) {
         _anchorLine.marks.push_back(seed+_distance*0.5);
         seed += stepLength;
+    }
+}
+
+void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance){
+    
+    float lastSeed = 0.0;
+
+    for (int i = 0; i < _anchorLine.size()-1; i++) {
+        float offset = _anchorLine.getDistances()[i];
+        float segmentLength = _anchorLine.getPolars()[i].r;
+        
+        //  Fits?
+        //
+        float minStep = m_label.width+_minDistance;
+        if( segmentLength > minStep ){
+
+            //  How many times?
+            int nTimes = segmentLength/minStep;
+            
+            //  At what distance between each other?
+            float margin = (segmentLength-m_label.width*(float)nTimes)/((float)nTimes+1.0);
+            
+            //  Add anchors points for seeds
+            float seed = margin;
+            std::cout << nTimes << " - " << segmentLength << " @ " << minStep << std::endl;
+            
+            for (int i = 0; i < nTimes; i++) {
+                float potentialSeed = offset + seed ;
+                
+                if( abs(potentialSeed-lastSeed) < _minDistance ){
+                    lastSeed = potentialSeed;
+                    _anchorLine.marks.push_back(lastSeed);
+                }
+                
+                seed += m_label.width+margin;
+            }
+            
+        } else if ( segmentLength > m_label.width){
+            
+            //  Only one time
+            //
+            float margin = (segmentLength-m_label.width)*0.5;
+            float potentialSeed = offset + margin ;
+            if( abs(potentialSeed-lastSeed) < _minDistance ){
+                lastSeed = potentialSeed;
+                _anchorLine.marks.push_back(lastSeed);
+            }
+        }
     }
 }
 
