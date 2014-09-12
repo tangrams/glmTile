@@ -59,7 +59,7 @@ void glmFeatureLabelLine::updateProjection(){
         
         //  Clear Previus computed values
         //
-        m_anchorLines.clear();
+        m_anchorLine.clear();
         
         //  Get Matrixes
         //
@@ -69,49 +69,33 @@ void glmFeatureLabelLine::updateProjection(){
         glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
         glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
         
-        //  Project each peace of the road (block) into 2D screen position
+        //  Project the road into 2D screen position
         //
-        for (auto &it: blocks) {
-            
-            //  Project each point if they are on screen
-            //
-            glmSmartLine smartLine;
-            for (int i = 0; i < it.size(); i++) {
-                glm::vec3 v = glm::project(it[i], mvmatrix, projmatrix, viewport);
-                if( v.z >= 0.0 && v.z <= 1.0){
-                    smartLine.add(v);
-                }
-            }
-            
-            //  Save the original 3D Centroid
-            //
-            smartLine.originalCentroid = it.getCentroid();
-            
-            //  Does the text actually fits on line???
-            //
-            if(smartLine.size() > 1.0
-               && smartLine.getLength() > 0.0
-               && m_label.width < smartLine.getLength()){
-                m_anchorLines.push_back(smartLine);
+        for (int i = 0; i < polyline.size(); i++) {
+            glm::vec3 v = glm::project(polyline[i], mvmatrix, projmatrix, viewport);
+            if( v.z >= 0.0 && v.z <= 1.0){
+                m_anchorLine.add(v);
             }
         }
         
         //  There is something to show??
         //
-        bVisible =  m_anchorLines.size()>0;
+        bVisible = m_anchorLine.size() > 1.0
+                    && m_anchorLine.getLength() > 0.0
+                    && m_label.width < m_anchorLine.getLength();
+        
+
         if (bVisible) {
             //  Place the anchor points for the text labels
             //
-            float distance = 500;   // Multiple labels will apear every XXXXX screen pixels
-            
-            for (auto &it: m_anchorLines) {
-//                if(m_label.width + distance > it.getLength()){
-//                    seedAnchorAt(it,0.5);   //  If only one fit put it on the middle
-//                } else {
-//                    seedAnchorsEvery(it,distance);
-//                }
-                seedAnchorOnSegmentsAt(it,distance);
+            seedAnchorOnSegmentsAt(m_anchorLine,500); // Multiple labels will apear every XXXXX screen pixels
+            if (m_anchorLine.marks.size() == 0) {
+                seedAnchorsEvery(m_anchorLine,500);
             }
+            
+//            if (m_anchorLine.marks.size() == 0) {
+//                seedAnchorAt(m_anchorLine, 0.5);
+//            }
         }
     } else {
         bVisible = false;
@@ -156,7 +140,6 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _dis
 void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance){
     
     float lastSeed = 0.0;
-
     for (int i = 0; i < _anchorLine.size()-1; i++) {
         float offset = _anchorLine.getDistances()[i];
         float segmentLength = _anchorLine.getPolars()[i].r;
@@ -174,12 +157,11 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             
             //  Add anchors points for seeds
             float seed = margin;
-            std::cout << nTimes << " - " << segmentLength << " @ " << minStep << std::endl;
-            
             for (int i = 0; i < nTimes; i++) {
                 float potentialSeed = offset + seed ;
                 
-                if( abs(potentialSeed-lastSeed) < _minDistance ){
+                if( potentialSeed-lastSeed > _minDistance*0.5 )
+                {
                     lastSeed = potentialSeed;
                     _anchorLine.marks.push_back(lastSeed);
                 }
@@ -193,7 +175,8 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             //
             float margin = (segmentLength-m_label.width)*0.5;
             float potentialSeed = offset + margin ;
-            if( abs(potentialSeed-lastSeed) < _minDistance ){
+            if( potentialSeed-lastSeed > _minDistance*0.5 )
+            {
                 lastSeed = potentialSeed;
                 _anchorLine.marks.push_back(lastSeed);
             }
@@ -205,35 +188,31 @@ void glmFeatureLabelLine::drawLine(){
     
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);
-    for (auto &it: m_anchorLines) {
-        it.draw();
-    }
+    m_anchorLine.draw();
+
     glDisable(GL_LINE_STIPPLE);
     
-    for (auto &it: m_anchorLines) {
-        for (int i = 0; i < it.size(); i++) {
-            
-            if(i == 0 ){
-                glLineWidth(2);
-                drawCross(it[i],5);
-            } else {
-                glLineWidth(1);
-                drawCross(it[i]);
-            }
-            
+    
+    for (int i = 0; i < m_anchorLine.size(); i++) {
+        
+        if(i == 0 ){
+            glLineWidth(2);
+            drawCross(m_anchorLine[i],5);
+        } else {
+            glLineWidth(1);
+            drawCross(m_anchorLine[i]);
         }
+        
     }
 }
 
 void glmFeatureLabelLine::draw(const glm::vec3 &_camPos ){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
         
-        for (auto &it : m_anchorLines){
-            float alpha = glm::dot( glm::normalize(_camPos-it.originalCentroid),glm::vec3(0.,0.,1.));
-            glColor4f(1., 1., 1., alpha);
-            
-            drawLetterByLetter(it, _camPos);
-        }
+        float alpha = glm::dot( glm::normalize(_camPos-m_anchorLine.originalCentroid),glm::vec3(0.,0.,1.));
+        glColor4f(1., 1., 1., alpha);
+        
+        drawLetterByLetter(m_anchorLine, _camPos);
     }
 }
 

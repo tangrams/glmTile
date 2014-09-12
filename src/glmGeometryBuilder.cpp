@@ -102,46 +102,6 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     buildLayer(_jsonRoot, "roads", _tile, 5.0);
     buildLayer(_jsonRoot, "pois", _tile, 6.0);
     
-    //  Add a copy of labeled lines (usually "roads") to a block buffer
-    //
-    for (auto &it: _tile.labeledLines) {
-//        it->polyline.simplify(0.9);
-        it->blocks.push_back(it->polyline);
-    }
-    
-    
-    //  NOT WORKING
-    //
-//    //  For each block of each street
-//    //
-//    for (int iStreet = 0; iStreet < _tile.labeledLines.size() ; iStreet++ ) {
-//        for (int i = 0 ; i < _tile.labeledLines[iStreet]->blocks.size(); i++) {
-//            
-//            //  Check if overlap with other streets
-//            //
-//            for (int jStreet = 0; jStreet < _tile.labeledLines.size(); jStreet++) {
-//                if(iStreet!=jStreet){
-//                    std::vector<glmPolyline> result = _tile.labeledLines[iStreet]->blocks[i].splitAtIntersection(_tile.labeledLines[jStreet]->polyline);
-//                    
-//                    //  If intersect
-//                    //
-//                    if(result.size()>1){
-//                        
-//                        // Replace the begining with the cutted line
-//                        //
-//                        _tile.labeledLines[iStreet]->blocks[i] = result[0];
-//                        
-//                        // Add the rest of the peaces
-//                        //
-//                        for (int k = 1; k < result.size(); k++) {
-//                            _tile.labeledLines[iStreet]->blocks.push_back(result[k]);
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
 
 glmTile glmGeometryBuilder::getFromFile(std::string _filename){

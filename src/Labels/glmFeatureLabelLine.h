@@ -23,8 +23,6 @@ public:
     void    drawLine();
 
     glmPolyline polyline;
-    
-    std::vector<glmPolyline> blocks;
 
 protected:
     void    updateCached();
@@ -36,8 +34,8 @@ protected:
     void    drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     void    drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     
-    //  Dynamic projected 2D labels lines and anchors
-    std::vector<glmSmartLine> m_anchorLines;
+    //  Dynamic projected 2D label line and anchors
+    glmSmartLine m_anchorLine;
     
     //  Text cached data
     std::vector<float> m_wordsWidth;
