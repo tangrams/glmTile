@@ -19,7 +19,7 @@ class glmGeometryBuilder {
 public:
     
     glmGeometryBuilder();
-    virtual ~glmGeometryBuilder(){};
+    virtual ~glmGeometryBuilder();
     
     static glmGeometryBuilder* GetInstance() {
         static glmGeometryBuilder *instance = new glmGeometryBuilder();
@@ -47,12 +47,10 @@ private:
     
     void buildLayer(Json::Value &_jsonRoot, const std::string &_layerName, glmTile &_tile, float _minHeight = 0.);
     
-    void lineJson2Polyline(Json::Value &_lineJson, glmPolyline &_poly, float _minHeight = 0.);
-    
     //  Mesh constructors
     //
+    void lineJson2Polyline(Json::Value &_lineJson, glmPolyline &_poly, float _minHeight = 0.);
     void pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, float _radius, int _sides = 6, float _minHeight = 0.);
-    void lineJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, float _minHeight);
     void polygonJson2Mesh(Json::Value &_polygonJson, glmMesh &_mesh, float _minHeight, float _height);
     
     glm::vec3 m_geometryOffset;

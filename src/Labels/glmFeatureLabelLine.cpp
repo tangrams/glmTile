@@ -105,11 +105,11 @@ void glmFeatureLabelLine::updateProjection(){
             float distance = 500;   // Multiple labels will apear every XXXXX screen pixels
             
             for (auto &it: m_anchorLines) {
-                if(m_label.width + distance > it.getLength()){
+                //if(m_label.width + distance > it.getLength()){
                     seedAnchorAt(it,0.5);   //  If only one fit put it on the middle
-                } else {
-                    seedAnchorsEvery(it,distance);
-                }
+                //} else {
+                    //seedAnchorsEvery(it,distance);
+                //}
             }
         }
     } else {

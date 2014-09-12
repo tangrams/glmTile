@@ -10,8 +10,6 @@
 #include <fstream>
 #include <utility>
 
-#include "tesselator.h"
-
 #include <curl/curl.h>
 #include <iostream>
 
@@ -44,11 +42,7 @@ std::string getURL(const std::string& url) {
     return out.str();
 }
 
-glmGeometryBuilder::glmGeometryBuilder():
-m_geometryOffset(0.0,0.0,0.0),
-lineWidth(5.5),
-labelManager(NULL)
-{
+glmGeometryBuilder::glmGeometryBuilder():m_geometryOffset(0.0,0.0,0.0),lineWidth(5.5),labelManager(NULL){
     LayerColorPalette["earth"] = glm::vec4(0.5,0.5,0.5,1.0);
     LayerColorPalette["landuse"] = glm::vec4(0.0,0.7,0.0,1.0);
     LayerColorPalette["water"] = glm::vec4(0.0,0.0,0.9,1.0);
@@ -57,6 +51,9 @@ labelManager(NULL)
     LayerColorPalette["roads"] = glm::vec4(0.1,0.1,0.1,1.0);
     LayerColorPalette["pois"] = glm::vec4(1.0,0.1,0.1,1.0);
 }
+
+glmGeometryBuilder::~glmGeometryBuilder(){
+};
 
 void glmGeometryBuilder::setLabelManager(glmLabelManager *_lm){
     labelManager = _lm;
@@ -105,20 +102,43 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     buildLayer(_jsonRoot, "roads", _tile, 5.0);
     buildLayer(_jsonRoot, "pois", _tile, 6.0);
     
-    //  TODO:
-    //      - Check for overlaping labeled polylines (usually "roads")
-    //      - and then split them
-
-    for (int i = 0; i < _tile.labeledLines.size(); i++) {
-        
-        for (int j = 0; j < _tile.labeledLines.size(); j++) {
-//            _tile.labeledLines[i]->polyline
-        }
-        
-        //  IS NOT DOING NOTHING
-        //
-        _tile.labeledLines[i]->blocks.push_back(_tile.labeledLines[i]->polyline);
+    //  Add a copy of labeled lines (usually "roads") to a block buffer
+    //
+    for (auto &it: _tile.labeledLines) {
+        it->polyline.simplify(0.5);
+        it->blocks.push_back(it->polyline);
     }
+    
+//    //  For each block of each street
+//    //
+//    for (int iStreet = 0; iStreet < _tile.labeledLines.size() ; iStreet++ ) {
+//        for (int i = 0 ; i < _tile.labeledLines[iStreet]->blocks.size(); i++) {
+//            
+//            //  Check if overlap with other streets
+//            //
+//            for (int jStreet = 0; jStreet < _tile.labeledLines.size(); jStreet++) {
+//                if(iStreet!=jStreet){
+//                    std::vector<glmPolyline> result = _tile.labeledLines[iStreet]->blocks[i].splitAtIntersection(_tile.labeledLines[jStreet]->polyline);
+//                    
+//                    //  If intersect
+//                    //
+//                    if(result.size()>1){
+//                        
+//                        // Replace the begining with the cutted line
+//                        //
+//                        _tile.labeledLines[iStreet]->blocks[i] = result[0];
+//                        
+//                        // Add the rest of the peaces
+//                        //
+//                        for (int k = 1; k < result.size(); k++) {
+//                            _tile.labeledLines[iStreet]->blocks.push_back(result[k]);
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 glmTile glmGeometryBuilder::getFromFile(std::string _filename){
@@ -239,7 +259,10 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 feature = labelRef;
             }
             
-            lineJson2Mesh(geometryJson["coordinates"], *feature, minHeight);
+//            lineJson2Mesh(geometryJson["coordinates"], *feature, minHeight);
+            glmPolyline polyline;
+            lineJson2Polyline(geometryJson["coordinates"],polyline, minHeight);
+            feature->add(polyline,lineWidth);
             
         } else if (geometryType.compare("MultiLineString") == 0) {
             
@@ -261,7 +284,11 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
             }
             
             for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
-                lineJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight);
+//                lineJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight);
+                glmPolyline polyline;
+                lineJson2Polyline(geometryJson["coordinates"][j],polyline,minHeight);
+                feature->add(polyline,lineWidth);
+                
             }
             
         } else if (geometryType.compare("Polygon") == 0) {
@@ -332,6 +359,16 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
 
 //---------------------------------------------------------------------------
 
+void glmGeometryBuilder::lineJson2Polyline(Json::Value &lineJson, glmPolyline &_poly, float _minHeight){
+    for (int i = 0; i < lineJson.size(); i++) {
+        _poly.add(glm::vec3(lon2x(lineJson[i][0].asFloat()),
+                            lat2y(lineJson[i][1].asFloat()),
+                            _minHeight) - m_geometryOffset);
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void glmGeometryBuilder::pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, float _radius, int _sides, float _minHeight){
     
     glm::vec3 p(lon2x(_lineJson[0].asFloat()),
@@ -340,6 +377,7 @@ void glmGeometryBuilder::pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, 
     p -= m_geometryOffset;
     
     //  make a circle
+    //  TODO: add this to polyline;
     //
     float angle = 0.0f;
     float jump = TWO_PI/(float)_sides;
@@ -350,29 +388,17 @@ void glmGeometryBuilder::pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, 
                                _minHeight));
         angle += jump;
     }
-    
-    polyline.addAsShapeToMesh(_mesh);
+    _mesh.add(polyline);
 }
 
 //---------------------------------------------------------------------------
-
-void glmGeometryBuilder::lineJson2Mesh(Json::Value &lineJson, glmMesh &_mesh, float _minHeight){
-    glmPolyline polyline;
-    lineJson2Polyline(lineJson,polyline,_minHeight);
-    polyline.addAsLineToMesh(_mesh, lineWidth, false);
-}
-
-//---------------------------------------------------------------------------
-
 void glmGeometryBuilder::polygonJson2Mesh(Json::Value &polygonJson, glmMesh &_mesh, float _minHeight, float _height) {
-    TESStesselator  *m_tess = tessNewTess(NULL);                    // Tesselator instance
     uint16_t indexOffset = (uint16_t)_mesh.getVertices().size();    // track indices
-    _mesh.setDrawMode(GL_TRIANGLES);
-    
-    glmRectangle bBox;  // this will calculate the total bounding box to compute a UV for top the top view
     
     //  Go through the Json polygons making walls and adding it to the tessalator
     //
+    std::vector<glmPolyline> rings;
+    
     for (int i = 0; i < polygonJson.size(); i++) {
         
         glmPolyline ringCoords;
@@ -419,46 +445,8 @@ void glmGeometryBuilder::polygonJson2Mesh(Json::Value &polygonJson, glmMesh &_me
             }
         }
         
-        //  Grow  bounding box
-        ringCoords.addToBoundingBox(bBox);
-        
-        //  Add to tesselator
-        tessAddContour(m_tess, 3, &ringCoords[0].x, sizeof(glm::vec3), ringCoords.size());
+        rings.push_back(ringCoords);
     }
     
-    // Tessellate polygon into triangles
-    tessTesselate(m_tess, TESS_WINDING_NONZERO, TESS_POLYGONS, 3, 3, NULL);
-    
-    // Extract triangle elements from tessellator
-    const int numIndices = tessGetElementCount(m_tess);
-    const TESSindex* indices = tessGetElements(m_tess);
-    for (int i = 0; i < numIndices; i++) {
-        const TESSindex* poly = &indices[i*3];
-        for (int j = 0; j < 3; j++) {
-            _mesh.addIndex(poly[j] + indexOffset);
-        }
-    }
-    
-    //  Add vertexes from tessellator
-    //
-    const int numVertices = tessGetVertexCount(m_tess);
-    const float* vertices = tessGetVertices(m_tess);
-    for (int i = 0; i < numVertices; i++) {
-        _mesh.addTexCoord(glm::vec2(mapValue(vertices[3*i],bBox.getMinX(),bBox.getMaxX(),0.,1.),
-                                    mapValue(vertices[3*i+1],bBox.getMinY(),bBox.getMaxY(),0.,1.)));
-        _mesh.addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-        _mesh.addVertex(glm::vec3(vertices[3*i], vertices[3*i + 1], vertices[3*i + 2]));
-    }
-    
-    tessDeleteTess(m_tess);
-}
-
-//---------------------------------------------------------------------------
-
-void glmGeometryBuilder::lineJson2Polyline(Json::Value &lineJson, glmPolyline &_poly, float _minHeight){
-    for (int i = 0; i < lineJson.size(); i++) {
-        _poly.add(glm::vec3(lon2x(lineJson[i][0].asFloat()),
-                            lat2y(lineJson[i][1].asFloat()),
-                            _minHeight) - m_geometryOffset);
-    }
+    _mesh.add(rings);
 }
