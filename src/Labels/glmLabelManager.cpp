@@ -109,22 +109,30 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
     }
 }
 
-void glmLabelManager::draw(){
+void glmLabelManager::draw3D(){
+    glColor4f(1.,1.,1.,1.);
+    for (auto &it : pointLabels) {
+        if (it->bVisible){
+            it->draw3D(m_cameraPos);
+        }
+    }
+}
+
+void glmLabelManager::draw2D(){
     
-//    glColor4f(1.,1.,1.,1.);
-//    for (auto &it : pointLabels) {
-//        if (it->bVisible) {
-//            it->draw();
-//        }
-//        
-//    }
+    glColor4f(1.,1.,1.,1.);
+    for (auto &it : pointLabels) {
+        if (it->bVisible) {
+            it->draw();
+        }
+        it->drawDebug();
+    }
     
     for (auto &it : lineLabels) {
         if (it->bVisible) {
             it->draw(m_cameraPos);
         }
-        
-        it->drawLine(); // Debug
+        it->drawDebug();
     }
     
     glColor4f(1.,1.,1.,1.);

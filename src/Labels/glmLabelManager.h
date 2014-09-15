@@ -31,7 +31,8 @@ public:
     void updateProjection();
     void updateOcclusions(float *_depthBuffer, int _width, int _height);
     
-    void draw();
+    void draw3D();
+    void draw2D();
 
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;

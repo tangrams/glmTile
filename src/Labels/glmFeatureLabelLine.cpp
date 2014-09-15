@@ -86,11 +86,11 @@ void glmFeatureLabelLine::updateProjection(){
                     && m_anchorLine.getLength() > 0.0
                     && m_label.width < m_anchorLine.getLength();
         
-
         if (bVisible) {
+            
             //  Place the anchor points for the text labels
             //
-            seedAnchorOnSegmentsAt(m_anchorLine,labelsDistance); // Multiple labels will apear every XXXXX screen pixels
+            seedAnchorOnSegmentsAt(m_anchorLine,labelsDistance*0.25,labelsDistance); // Multiple labels will apear every XXXXX screen pixels
             
             if (m_anchors.size() == 0) {
                 seedAnchorsEvery(m_anchorLine,labelsDistance);
@@ -142,7 +142,7 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _dis
     }
 }
 
-void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance){
+void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance){
     
     float lastSeed = 0.0;
     for (int i = 0; i < _anchorLine.size()-1; i++) {
@@ -151,11 +151,10 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
         
         //  Fits?
         //
-        float minStep = m_label.width+_minDistance;
-        if( segmentLength > minStep ){
+        if( segmentLength >  m_label.width+_minDistance ){
 
             //  How many times?
-            int nTimes = segmentLength/minStep;
+            int nTimes = segmentLength/(m_label.width+_maxDistance);
             
             //  At what distance between each other?
             float margin = (segmentLength-m_label.width*(float)nTimes)/((float)nTimes+1.0);
@@ -165,8 +164,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             for (int i = 0; i < nTimes; i++) {
                 float potentialSeed = offset + seed ;
                 
-                if( potentialSeed-lastSeed > _minDistance*0.25 )
-                {
+                if( potentialSeed-lastSeed > _minDistance ){
                     lastSeed = potentialSeed;
                     m_anchors.push_back(lastSeed);
                 }
@@ -180,8 +178,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             //
             float margin = (segmentLength-m_label.width)*0.5;
             float potentialSeed = offset + margin ;
-            if( potentialSeed-lastSeed > _minDistance*0.25 )
-            {
+            if( potentialSeed-lastSeed > _minDistance){
                 lastSeed = potentialSeed;
                 m_anchors.push_back(lastSeed);
             }
@@ -189,7 +186,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
     }
 }
 
-void glmFeatureLabelLine::drawLine(){
+void glmFeatureLabelLine::drawDebug(){
     
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);

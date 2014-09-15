@@ -20,7 +20,7 @@ public:
     
     void    updateProjection();
     void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
-    void    drawLine();
+    void    drawDebug();
 
     glmPolyline polyline;
     
@@ -31,7 +31,7 @@ protected:
 
     void    seedAnchorAt(glmSmartLine &_anchorLine, float _pct);
     void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance);
-    void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance);
+    void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
     
     void    drawAllTextAtOnce(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     void    drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);

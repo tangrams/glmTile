@@ -10,6 +10,8 @@
 #include "glmFeatureLabel.h"
 #include "glmRectangle.h"
 
+#include "glmSmartLine.h"
+
 class glmFeatureLabelPoint : public glmFeatureLabel{
 public:
     
@@ -30,12 +32,20 @@ public:
     
     void    updateProjection();
     void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
+    void    draw3D(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
+
+    void    drawDebug();
+    
+    std::vector<glmPolyline> polylines;
+    glmMesh     line;
     
 protected:
     void    updateCached();
     
+    std::vector<glmSmartLine> m_anchorLines;
     glmRectangle m_label;
     
+    glm::vec3   m_offset;
     glm::vec3   m_anchorPoint;
     glm::vec3   m_centroid;
     

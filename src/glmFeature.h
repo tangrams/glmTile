@@ -20,6 +20,7 @@ public:
     glmFeature(){};
     virtual ~glmFeature(){};
     
+    glmPolyline     orginal;
     std::string     idString;
     
 private:

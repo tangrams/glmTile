@@ -8,7 +8,7 @@
 
 #include "glmFeatureLabelPoint.h"
 
-glmFeatureLabelPoint::glmFeatureLabelPoint():m_centroid(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(8.0), m_angle(HALF_PI) {
+glmFeatureLabelPoint::glmFeatureLabelPoint():m_centroid(0.0,0.0,0.0), m_offset(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(8.0), m_angle(HALF_PI) {
 };
 
 glmFeatureLabelPoint::~glmFeatureLabelPoint(){
@@ -69,8 +69,21 @@ void glmFeatureLabelPoint::updateProjection(){
             updateCached();
         }
         
-        m_anchorPoint = glm::project(m_centroid, mvmatrix, projmatrix, viewport);
+        m_anchorLines.clear();
         
+        for (auto &it: polylines) {
+            glmSmartLine line;
+            for (int i = 0; i < it.size(); i++) {
+                glm::vec3 v = glm::project(it[i], mvmatrix, projmatrix, viewport);
+                if( v.z >= 0.0 && v.z <= 1.0){
+                    line.add(v);
+                }
+            }
+            m_anchorLines.push_back(line);
+        }
+        
+        m_anchorPoint = glm::project(m_centroid+m_offset, mvmatrix, projmatrix, viewport);
+    
         m_label.x = m_anchorPoint.x + m_margin * cos(m_angle);
         m_label.y = m_anchorPoint.y + m_margin * sin(-m_angle);
         
@@ -125,16 +138,45 @@ void glmFeatureLabelPoint::updateCached(){
     }
 }
 
+void glmFeatureLabelPoint::draw3D(const glm::vec3 &_camPos){
+
+    float angle = (1.-glm::dot( glm::normalize(_camPos-m_centroid),glm::vec3(0.,0.,1.)));
+    m_offset = angle*glm::vec3(0,0,200);
+    
+    line.clear();
+    line.setDrawMode(GL_LINES);
+    line.addVertex(m_centroid);
+    line.addVertex(m_centroid+m_offset);
+    
+    glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x1111);
+    line.draw();
+    glDisable(GL_LINE_STIPPLE);
+
+    glColor4f(1., 1., 1., 1.);
+}
+
 void glmFeatureLabelPoint::draw(const glm::vec3 &_camPos){
     if(m_font != NULL){
         if(m_bChanged){
             updateCached();
         }
         
-        drawCross(m_anchorPoint,3.0);
-//        m_label.drawCorners(3.0);
-//        m_label.drawBorders();
-        
+//        drawCross(m_anchorPoint,3.0);
+        glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
         m_font->drawString(m_text, m_label.getBottomLeft());
+        glColor4f(1., 1., 1., 1.);
     }
 }
+
+void glmFeatureLabelPoint::drawDebug(){
+    glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x1111);
+    for (auto &it: m_anchorLines) {
+        it.draw();
+    }
+    glDisable(GL_LINE_STIPPLE);
+}
+
