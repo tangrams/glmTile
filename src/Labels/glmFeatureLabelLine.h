@@ -23,6 +23,8 @@ public:
     void    drawLine();
 
     glmPolyline polyline;
+    
+    float   labelsDistance;
 
 protected:
     void    updateCached();
@@ -31,11 +33,14 @@ protected:
     void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance);
     void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance);
     
+    void    drawAllTextAtOnce(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     void    drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     void    drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     
     //  Dynamic projected 2D label line and anchors
-    glmSmartLine m_anchorLine;
+    glmSmartLine        m_anchorLine;
+    std::vector<float>  m_anchors;
+    bool                m_letterByLetter;
     
     //  Text cached data
     std::vector<float> m_wordsWidth;
