@@ -109,21 +109,17 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     for (auto &pointLabel: _tile.labeledPoints) {
         for (auto &otherBuilding : _tile.byLayers["buildings"]) {
             
-            if (pointLabel.get() != otherBuilding.get() ) {
+            if (pointLabel.get() != otherBuilding.get()
+                && pointLabel->orginal.size() > 0 ) {
+                
+                std::cout << "Check " << otherBuilding->idString << ":" << otherBuilding->orginal.size() << " on " << pointLabel->idString << ":" << pointLabel->orginal.size() << std::endl;
                 
                 glm::vec3 centroid = otherBuilding->orginal.getCentroid();
-                
-                for(auto &pointLabelPolis: pointLabel->polylines){
-                    if ( pointLabel->orginal.isInside(centroid.x, centroid.y) ) {
-                        pointLabel->polylines.push_back(otherBuilding->orginal);
-                        std::cout << otherBuilding->idString << " inside " << pointLabel->idString << std::endl;
-                    }
+                if ( pointLabel->orginal.isInside(centroid.x, centroid.y) ) {
+                    
+                    pointLabel->polylines.push_back(otherBuilding->orginal);
+                    std::cout << otherBuilding->idString << " inside " << pointLabel->idString << std::endl;
                 }
-                
-//                if ( pointLabel->orginal.isInside(centroid.x, centroid.y) ) {
-//                    pointLabel->polylines.push_back(otherBuilding->orginal);
-//                    std::cout << otherBuilding->idString << " inside " << pointLabel->idString << std::endl;
-//                }
             }
         }
     }
@@ -302,9 +298,13 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 labelRef->polylines.push_back(polyline);
                 
                 labelRef->setText(propsJson["name"].asString());
+                
                 _tile.labeledFeatures.push_back(labelRef);
+                _tile.labeledPoints.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
+                labelRef->orginal = polyline;
+                
                 labelManager->pointLabels.push_back(labelRef);
                 feature = labelRef;
             }
@@ -315,10 +315,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
         } else if (geometryType.compare("MultiPolygon") == 0) {
             
             glmPolyline polyline;
-            for (int i = 0; i < geometryJson["coordinates"].size(); i++) {
-                polyline.clear();
-                lineJson2Polyline(geometryJson["coordinates"][i][0], polyline, height);
-            }
+            lineJson2Polyline(geometryJson["coordinates"][0][0], polyline, height);
             
             if (propsJson.isMember("name") && labelManager != NULL) {
                 glmFeatureLabelPointRef labelRef(new glmFeatureLabelPoint());
@@ -328,6 +325,8 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 labelRef->setText(propsJson["name"].asString());
                 
                 _tile.labeledFeatures.push_back(labelRef);
+                _tile.labeledPoints.push_back(labelRef);
+                
                 labelRef->setFont(labelManager->getFont());
                 labelManager->pointLabels.push_back(labelRef);
                 
