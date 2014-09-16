@@ -30,6 +30,9 @@ public:
     
     bool deleteLabel(const std::string &_idString);
     
+    bool mergDuplicateLineLabels();
+    bool mergeDuplicatePointLabels();
+    
     void updateCameraPosition( const glm::vec3 &_pos );
     
     void updateFont();
@@ -41,6 +44,9 @@ public:
 
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
+    
+    bool    bDebugLines;
+    bool    bDebugPoints;
     
 private:
     

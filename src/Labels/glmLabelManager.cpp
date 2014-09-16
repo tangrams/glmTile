@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): m_bFontChanged(true) {
+glmLabelManager::glmLabelManager(): m_bFontChanged(true), bDebugLines(false), bDebugPoints(false) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -147,17 +147,20 @@ void glmLabelManager::draw2D(){
     
     glColor4f(1.,1.,1.,1.);
     for (auto &it : pointLabels) {
-        if (it->bVisible) {
-            it->draw2D();
+        it->draw2D();
+        
+        if(bDebugPoints){
+            it->drawDebug();
         }
-        it->drawDebug();
     }
     
     for (auto &it : lineLabels) {
-        if (it->bVisible) {
-            it->draw2D();
+        it->draw2D();
+        
+        if(bDebugLines){
+            it->drawDebug();
         }
-        it->drawDebug();
+        
     }
     
     glColor4f(1.,1.,1.,1.);
@@ -166,8 +169,6 @@ void glmLabelManager::draw2D(){
 void glmLabelManager::draw3D(){
     glColor4f(1.,1.,1.,1.);
     for (auto &it : pointLabels) {
-        if (it->bVisible){
-            it->draw3D();
-        }
+        it->draw3D();
     }
 }

@@ -8,9 +8,6 @@
 #pragma once
 
 #include "glmFeatureLabel.h"
-#include "glmRectangle.h"
-
-#include "glmSmartLine.h"
 
 class glmFeatureLabelPoint : public glmFeatureLabel{
 public:
@@ -25,7 +22,7 @@ public:
     
     glm::vec3 getScreenPosition() const;
     
-    glmRectangle getLabel() const;
+    glmRectangle getLabel( const float &_marign ) const;
     glm::vec3    getAnchorPoint() const;
     
     bool    isOver(const glmFeatureLabelPoint *_other);
@@ -37,13 +34,10 @@ public:
 
     void    drawDebug();
     
-    glmMesh     line;
+    glmMesh line;
     
 protected:
     void    updateCached();
-    
-    std::vector<glmSmartLine> m_anchorLines;
-    glmRectangle m_label;
     
     glm::vec3   m_offset;
     glm::vec3   m_anchorPoint;

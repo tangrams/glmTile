@@ -38,8 +38,13 @@ glm::vec3 glmFeatureLabelPoint::getScreenPosition() const{
     return m_anchorPoint;
 }
 
-glmRectangle glmFeatureLabelPoint::getLabel() const{
-    return m_label;
+glmRectangle glmFeatureLabelPoint::getLabel(const float &_marign) const{
+    
+    if (_marign == 0.0) {
+        return m_label;
+    } else {
+        return glmRectangle(m_label, _marign);
+    }
 }
 
 glm::vec3 glmFeatureLabelPoint::getAnchorPoint() const{
@@ -50,7 +55,7 @@ bool glmFeatureLabelPoint::isOver(const glmFeatureLabelPoint *_other){
     if(m_bChanged){
         updateCached();
     }
-    return m_label.intersects(_other->getLabel()) || isInside(_other->getAnchorPoint());
+    return m_label.intersects(_other->getLabel(50)) || isInside(_other->getAnchorPoint());
 }
 
 bool glmFeatureLabelPoint::isInside(const glm::vec3 &_point){
@@ -148,10 +153,17 @@ void glmFeatureLabelPoint::draw2D(){
             updateCached();
         }
         
-        //        drawCross(m_anchorPoint,3.0);
-        glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
-        m_font->drawString(m_text, m_label.getBottomLeft());
-        glColor4f(1., 1., 1., 1.);
+        if (bVisible) {
+            m_alpha = lerpValue(m_alpha, powf(m_anchorPoint.z,5), 0.1);
+        } else {
+            m_alpha = lerpValue(m_alpha,0.,0.1);
+        }
+        
+        if(m_alpha > 0.0){
+            glColor4f(1., 1., 1., m_alpha);
+            m_font->drawString(m_text, m_label.getBottomLeft());
+            glColor4f(1., 1., 1., 1.);
+        }
     }
 }
 
@@ -162,29 +174,44 @@ void glmFeatureLabelPoint::draw3D(){
         angle = (1.-glm::dot( glm::normalize( *m_cameraPos - m_centroid ), glm::vec3(0.,0.,1.)));
     }
     
-    m_offset = angle*glm::vec3(0,0,200);
+    m_offset.z = lerpValue(m_offset.z,angle*200,0.1);
     
-    line.clear();
-    line.setDrawMode(GL_LINES);
-    line.addVertex(m_centroid);
-    line.addVertex(m_centroid+m_offset);
-    
-    glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(1, 0x1111);
-    line.draw();
-    glDisable(GL_LINE_STIPPLE);
-
-    glColor4f(1., 1., 1., 1.);
+    if(m_alpha > 0.0){
+        line.clear();
+        line.setDrawMode(GL_LINES);
+        line.addVertex(m_centroid);
+        line.addVertex(m_centroid+m_offset);
+        
+        glColor4f(1., 1., 1., m_alpha);
+        glEnable(GL_LINE_STIPPLE);
+        glLineStipple(1, 0x1111);
+        line.draw();
+        glDisable(GL_LINE_STIPPLE);
+        
+        glColor4f(1., 1., 1., 1.);
+    }
 }
 
 void glmFeatureLabelPoint::drawDebug(){
-    glColor4f(1., 1., 1., powf(m_anchorPoint.z,5));
+    
+    glColor4f(1., 1., 1., m_alpha);
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);
     for (auto &it: m_anchorLines) {
         it.draw();
     }
     glDisable(GL_LINE_STIPPLE);
+
+    
+    if(!bVisible){
+        glColor4f(1., 1., 1.,0.2);
+        m_label.drawCorners();
+    } else {
+        glColor4f(1., 1., 1.,1.);
+        getLabel(50).drawCorners();
+    }
+    
+    glColor4f(1., 1., 1.,1.);
+    drawCross(m_anchorPoint,3.0);
 }
 

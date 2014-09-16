@@ -37,13 +37,9 @@ protected:
     void    drawWordByWord(const glmSmartLine &_anchorLine);
     void    drawLetterByLetter(const glmSmartLine &_anchorLine);
     
-    //  Dynamic projected 2D label line and anchors
-    std::vector<glmSmartLine> m_anchorLines;
-    
     //  Text cached data
     std::vector<float> m_wordsWidth;
     std::vector<float> m_lettersWidth;
-    glmRectangle m_label;
 };
 
 typedef std::tr1::shared_ptr<glmFeatureLabelLine> glmFeatureLabelLineRef;

@@ -12,11 +12,9 @@ glmFeatureLabel::glmFeatureLabel():bVisible(false), m_text("NONE"), m_bChanged(t
 }
 
 glmFeatureLabel::glmFeatureLabel(const std::string &_text):bVisible(false), m_text(_text), m_bChanged(true), m_cameraPos(NULL){
-    
 }
 
 glmFeatureLabel::~glmFeatureLabel(){
-    
 };
 
 void glmFeatureLabel::setFont(glmFontRef &_fontRef){

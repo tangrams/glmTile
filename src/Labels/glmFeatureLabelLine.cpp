@@ -198,6 +198,32 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
     }
 }
 
+void glmFeatureLabelLine::draw2D(){
+    if(m_font!=NULL&&m_text!="NONE"&&bVisible){
+        for (auto &it: m_anchorLines) {
+            
+            if(m_cameraPos!=0 && bVisible){
+                m_alpha = lerpValue(m_alpha,
+                                   glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.))
+                                   ,0.1);
+            } else {
+                m_alpha = lerpValue(m_alpha, 0.0, 0.1);
+            }
+            
+            if(m_alpha > 0){
+                glColor4f(1., 1., 1., m_alpha);
+                
+                if(it.bLetterByLetter){
+                    drawLetterByLetter(it);
+                } else {
+                    drawAllTextAtOnce(it);
+                }
+            }
+        }
+        
+    }
+}
+
 void glmFeatureLabelLine::drawDebug(){
     
     glEnable(GL_LINE_STIPPLE);
@@ -217,28 +243,6 @@ void glmFeatureLabelLine::drawDebug(){
                 drawCross(it[i]);
             }
         }
-    }
-}
-
-void glmFeatureLabelLine::draw2D(){
-    if(m_font!=NULL&&m_text!="NONE"&&bVisible){
-        for (auto &it: m_anchorLines) {
-            
-            float alpha = 1.0;
-            
-            if(m_cameraPos!=0){
-                alpha = glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.));
-            }
-            
-            glColor4f(1., 1., 1., alpha);
-            
-            if(it.bLetterByLetter){
-                drawLetterByLetter(it);
-            } else {
-                drawAllTextAtOnce(it);
-            }
-        }
-        
     }
 }
 
