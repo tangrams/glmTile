@@ -36,6 +36,8 @@ void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
     }
     _lineLabel->setCameraPos(&m_cameraPos);
     lineLabels.push_back(_lineLabel);
+    
+    //  TODO: Check duplicates street names
 }
 
 void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
@@ -44,6 +46,8 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
     }
     _pointLabel->setCameraPos(&m_cameraPos);
     pointLabels.push_back(_pointLabel);
+    
+    //  TODO: Check duplicates
 }
 
 bool glmLabelManager::deleteLabel(const std::string &_idString){

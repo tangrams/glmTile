@@ -202,6 +202,8 @@ void glmFeatureLabelLine::draw2D(){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
         for (auto &it: m_anchorLines) {
             
+            // TODO: fade alpha based on angle and distance
+            //
             if(m_cameraPos!=0 && bVisible){
                 m_alpha = lerpValue(m_alpha,
                                    glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.))

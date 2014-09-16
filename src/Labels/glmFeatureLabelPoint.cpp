@@ -170,7 +170,7 @@ void glmFeatureLabelPoint::draw2D(){
 void glmFeatureLabelPoint::draw3D(){
     float angle = 0;
     
-    if(m_cameraPos!=0){
+    if(m_cameraPos!=0 ){
         angle = (1.-glm::dot( glm::normalize( *m_cameraPos - m_centroid ), glm::vec3(0.,0.,1.)));
     }
     

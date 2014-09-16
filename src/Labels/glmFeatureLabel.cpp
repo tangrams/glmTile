@@ -8,10 +8,10 @@
 
 #include "glmFeatureLabel.h"
 
-glmFeatureLabel::glmFeatureLabel():bVisible(false), m_text("NONE"), m_bChanged(true), m_cameraPos(NULL){
+glmFeatureLabel::glmFeatureLabel(): m_text("NONE"), m_alpha(0.0), m_cameraPos(NULL), bVisible(false), m_bChanged(true) {
 }
 
-glmFeatureLabel::glmFeatureLabel(const std::string &_text):bVisible(false), m_text(_text), m_bChanged(true), m_cameraPos(NULL){
+glmFeatureLabel::glmFeatureLabel(const std::string &_text):m_text(_text), m_alpha(0.0), m_cameraPos(NULL), bVisible(false), m_bChanged(true){
 }
 
 glmFeatureLabel::~glmFeatureLabel(){
