@@ -15,6 +15,7 @@ class glmFeatureLabel : public glmFeature{
 public:
     
     glmFeatureLabel();
+    glmFeatureLabel(const std::string &_text);
     virtual ~glmFeatureLabel();
     
     void setFont(glmFontRef &_fontRef);

@@ -11,6 +11,10 @@
 glmFeatureLabel::glmFeatureLabel():bVisible(false), m_text("NONE"), m_bChanged(true){
 }
 
+glmFeatureLabel::glmFeatureLabel(const std::string &_text):bVisible(false), m_text(_text), m_bChanged(true){
+    
+}
+
 glmFeatureLabel::~glmFeatureLabel(){
     
 };

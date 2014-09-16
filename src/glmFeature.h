@@ -20,7 +20,7 @@ public:
     glmFeature(){};
     virtual ~glmFeature(){};
     
-    glmPolyline     orginal;
+    std::vector<glmPolyline> shapes;
     std::string     idString;
     
 private:

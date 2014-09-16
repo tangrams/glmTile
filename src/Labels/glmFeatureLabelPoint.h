@@ -16,6 +16,7 @@ class glmFeatureLabelPoint : public glmFeatureLabel{
 public:
     
     glmFeatureLabelPoint();
+    glmFeatureLabelPoint(const std::string &_text);
     virtual ~glmFeatureLabelPoint();
     
     void    setPosition(const glm::vec3 &_pos);
@@ -36,7 +37,6 @@ public:
 
     void    drawDebug();
     
-    std::vector<glmPolyline> polylines;
     glmMesh     line;
     
 protected:

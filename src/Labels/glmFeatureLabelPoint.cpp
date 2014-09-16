@@ -11,6 +11,10 @@
 glmFeatureLabelPoint::glmFeatureLabelPoint():m_centroid(0.0,0.0,0.0), m_offset(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(8.0), m_angle(HALF_PI) {
 };
 
+glmFeatureLabelPoint::glmFeatureLabelPoint(const std::string &_text):m_centroid(0.0,0.0,0.0), m_offset(0.0,0.0,0.0), m_anchorPoint(0.0,0.0,0.0), m_margin(8.0), m_angle(HALF_PI){
+    setText(_text);
+}
+
 glmFeatureLabelPoint::~glmFeatureLabelPoint(){
 
 };
@@ -71,7 +75,7 @@ void glmFeatureLabelPoint::updateProjection(){
         
         m_anchorLines.clear();
         
-        for (auto &it: polylines) {
+        for (auto &it: shapes) {
             glmSmartLine line;
             for (int i = 0; i < it.size(); i++) {
                 glm::vec3 v = glm::project(it[i], mvmatrix, projmatrix, viewport);

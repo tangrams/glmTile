@@ -26,7 +26,6 @@ public:
     glmMesh getMeshFor(const std::string &_layerName);
     glmMesh getMeshFor(const std::vector< std::string > &_layersNames);
     
-    std::map< std::string, std::vector<glmFeatureRef> > byId;
     std::map< std::string, std::vector<glmFeatureRef> > byLayers;
 
     std::vector<glmFeatureLabelRef> labeledFeatures;

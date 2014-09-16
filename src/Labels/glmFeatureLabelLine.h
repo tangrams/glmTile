@@ -16,16 +16,15 @@ class glmFeatureLabelLine : public glmFeatureLabel{
 public:
     
     glmFeatureLabelLine();
+    glmFeatureLabelLine(const std::string &_text);
     virtual ~glmFeatureLabelLine();
     
     void    updateProjection();
     void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
     void    drawDebug();
-
-    glmPolyline polyline;
     
     float   labelsDistance;
-
+    
 protected:
     void    updateCached();
 
@@ -38,9 +37,7 @@ protected:
     void    drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
     
     //  Dynamic projected 2D label line and anchors
-    glmSmartLine        m_anchorLine;
-    std::vector<float>  m_anchors;
-    bool                m_letterByLetter;
+    std::vector<glmSmartLine> m_anchorLines;
     
     //  Text cached data
     std::vector<float> m_wordsWidth;

@@ -8,8 +8,11 @@
 
 #include "glmFeatureLabelLine.h"
 
-glmFeatureLabelLine::glmFeatureLabelLine():labelsDistance(500),m_letterByLetter(false){
-    m_anchors.clear();
+glmFeatureLabelLine::glmFeatureLabelLine():labelsDistance(500){
+}
+
+glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text):labelsDistance(500){
+    setText(_text);
 }
 
 glmFeatureLabelLine::~glmFeatureLabelLine(){
@@ -59,9 +62,7 @@ void glmFeatureLabelLine::updateProjection(){
         
         //  Clear Previus computed values
         //
-        m_anchorLine.clear();
-        m_anchors.clear();
-        m_letterByLetter = false;
+        m_anchorLines.clear();
         
         //  Get Matrixes
         //
@@ -73,35 +74,46 @@ void glmFeatureLabelLine::updateProjection(){
         
         //  Project the road into 2D screen position
         //
-        for (int i = 0; i < polyline.size(); i++) {
-            glm::vec3 v = glm::project(polyline[i], mvmatrix, projmatrix, viewport);
-            if( v.z >= 0.0 && v.z <= 1.0){
-                m_anchorLine.add(v);
+        for (auto &iShape: shapes){
+            glmSmartLine smartline;
+            for (int i = 0; i < iShape.size(); i++) {
+                glm::vec3 v = glm::project(iShape[i], mvmatrix, projmatrix, viewport);
+                if( v.z >= 0.0 && v.z <= 1.0){
+                    smartline.add(v);
+                }
+            }
+            
+            if(smartline.size()>1
+               && smartline.getLength() > 0.0
+               && m_label.width < smartline.getLength()){
+                m_anchorLines.push_back(smartline);
             }
         }
         
         //  There is something to show??
         //
-        bVisible = m_anchorLine.size() > 1.0
-                    && m_anchorLine.getLength() > 0.0
-                    && m_label.width < m_anchorLine.getLength();
+        bVisible = m_anchorLines.size() > 0.0;
         
         if (bVisible) {
             
-            //  Place the anchor points for the text labels
-            //
-            seedAnchorOnSegmentsAt(m_anchorLine,labelsDistance*0.25,labelsDistance); // Multiple labels will apear every XXXXX screen pixels
-            
-            if (m_anchors.size() == 0) {
-                seedAnchorsEvery(m_anchorLine,labelsDistance);
-                m_letterByLetter  = true;
-            }
-            
-            if (m_anchors.size() == 0) {
-                seedAnchorAt(m_anchorLine, 0.5);
-                m_letterByLetter = true;
+            for (auto &it: m_anchorLines) {
+                
+                //  Place the anchor points for the text labels
+                //
+                seedAnchorOnSegmentsAt(it,labelsDistance*0.25,labelsDistance); // Multiple labels will apear every XXXXX screen pixels
+                
+                if (it.marks.size() == 0) {
+                    seedAnchorsEvery(it,labelsDistance);
+                    it.bLetterByLetter  = true;
+                }
+                
+                if (it.marks.size() == 0) {
+                    seedAnchorAt(it, 0.5);
+                    it.bLetterByLetter = true;
+                }
             }
         }
+        
     } else {
         bVisible = false;
     }
@@ -121,7 +133,7 @@ void glmFeatureLabelLine::seedAnchorAt(glmSmartLine &_anchorLine, float _pct ){
     }
     
     //  Add single position to mark
-    m_anchors.push_back(offset);
+    _anchorLine.marks.push_back(offset);
 }
 
 void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance){
@@ -137,7 +149,7 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _dis
     
     //  Add anchor points for seeds every _distance
     while (seed < totalLength-stepLength) {
-        m_anchors.push_back(seed+_distance*0.5);
+        _anchorLine.marks.push_back(seed+_distance*0.5);
         seed += stepLength;
     }
 }
@@ -166,7 +178,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
                 
                 if( potentialSeed-lastSeed > _minDistance ){
                     lastSeed = potentialSeed;
-                    m_anchors.push_back(lastSeed);
+                    _anchorLine.marks.push_back(lastSeed);
                 }
                 
                 seed += m_label.width+margin;
@@ -180,7 +192,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             float potentialSeed = offset + margin ;
             if( potentialSeed-lastSeed > _minDistance){
                 lastSeed = potentialSeed;
-                m_anchors.push_back(lastSeed);
+                _anchorLine.marks.push_back(lastSeed);
             }
         }
     }
@@ -190,37 +202,42 @@ void glmFeatureLabelLine::drawDebug(){
     
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);
-    m_anchorLine.draw();
+    for (auto &it: m_anchorLines) {
+        it.draw();
+    }
     glDisable(GL_LINE_STIPPLE);
     
-    for (int i = 0; i < m_anchorLine.size(); i++) {
-        if(i == 0 ){
-            glLineWidth(2);
-            drawCross(m_anchorLine[i],5);
-        } else {
-            glLineWidth(1);
-            drawCross(m_anchorLine[i]);
+    for (auto &it: m_anchorLines) {
+        for (int i = 0; i < it.size(); i++) {
+            if(i == 0 ){
+                glLineWidth(2);
+                drawCross(it[i],5);
+            } else {
+                glLineWidth(1);
+                drawCross(it[i]);
+            }
         }
     }
 }
 
 void glmFeatureLabelLine::draw(const glm::vec3 &_camPos ){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
-        
-        float alpha = glm::dot( glm::normalize(_camPos-m_anchorLine.originalCentroid),glm::vec3(0.,0.,1.));
-        glColor4f(1., 1., 1., alpha);
-        
-        if(m_letterByLetter){
-            drawLetterByLetter(m_anchorLine, _camPos);
-        } else {
-            drawAllTextAtOnce(m_anchorLine, _camPos);
+        for (auto &it: m_anchorLines) {
+            float alpha = glm::dot( glm::normalize(_camPos-it.originalCentroid),glm::vec3(0.,0.,1.));
+            glColor4f(1., 1., 1., alpha);
+            
+            if(it.bLetterByLetter){
+                drawLetterByLetter(it, _camPos);
+            } else {
+                drawAllTextAtOnce(it, _camPos);
+            }
         }
         
     }
 }
 
 void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos){
-    for (auto _offset : m_anchors){
+    for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
         glmRectangle screen = glmRectangle(viewport);
@@ -281,7 +298,7 @@ void glmFeatureLabelLine::drawWordByWord(const glmSmartLine &_anchorLine, const 
 }
 
 void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos){
-    for (auto _offset : m_anchors){
+    for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
         glmRectangle screen = glmRectangle(viewport);
