@@ -22,8 +22,13 @@ public:
     
     void setFont(glmFont *_font);
     void setFont(glmFontRef &_font);
-
+    
     glmFontRef& getFont();
+    
+    void addLineLabel( glmFeatureLabelLineRef &_lineLabel );
+    void addPointLabel( glmFeatureLabelPointRef &_pointLabel );
+    
+    bool deleteLabel(const std::string &_idString);
     
     void updateCameraPosition( const glm::vec3 &_pos );
     
@@ -31,8 +36,8 @@ public:
     void updateProjection();
     void updateOcclusions(float *_depthBuffer, int _width, int _height);
     
-    void draw3D();
     void draw2D();
+    void draw3D();
 
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;

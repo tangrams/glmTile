@@ -19,19 +19,22 @@ public:
     virtual ~glmFeatureLabel();
     
     void setFont(glmFontRef &_fontRef);
+    void setCameraPos(glm::vec3 *_camPos);
     void setText(const std::string &_text);
     
     virtual void updateProjection() = 0;
-    virtual void draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.) ) = 0;
+    virtual void draw2D() = 0;
+    virtual void draw3D() = 0;
     
     bool    bVisible;
     
 protected:
     virtual void updateCached() = 0;
     
-    
     std::string m_text;
     glmFontRef  m_font;
+    
+    glm::vec3   *m_cameraPos;
     
     bool    m_bChanged;
 };

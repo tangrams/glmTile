@@ -30,6 +30,38 @@ glmFontRef& glmLabelManager::getFont(){
     return m_font;
 }
 
+void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
+    if(m_font != NULL){
+        _lineLabel->setFont(m_font);
+    }
+    _lineLabel->setCameraPos(&m_cameraPos);
+    lineLabels.push_back(_lineLabel);
+}
+
+void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
+    if(m_font != NULL){
+        _pointLabel->setFont(m_font);
+    }
+    _pointLabel->setCameraPos(&m_cameraPos);
+    pointLabels.push_back(_pointLabel);
+}
+
+bool glmLabelManager::deleteLabel(const std::string &_idString){
+    for (int i = lineLabels.size()-1 ; i >= 0 ; i--) {
+        if (lineLabels[i]->idString == _idString) {
+            lineLabels.erase(lineLabels.begin()+i);
+            break;
+        }
+    }
+    
+    for (int i = pointLabels.size()-1 ; i >= 0 ; i--) {
+        if (pointLabels[i]->idString == _idString) {
+            pointLabels.erase(pointLabels.begin()+i);
+            break;
+        }
+    }
+}
+
 void glmLabelManager::updateFont(){
     if(m_bFontChanged){
         for (auto &it : pointLabels) {
@@ -49,8 +81,10 @@ bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef 
 }
 
 void glmLabelManager::updateCameraPosition( const glm::vec3 &_pos ){
-    m_cameraPos = _pos;
-    m_bProjectionChanged = true;
+    if(m_cameraPos != _pos){
+        m_cameraPos = _pos;
+        m_bProjectionChanged = true;
+    }
 }
 
 void glmLabelManager::updateProjection(){
@@ -109,31 +143,31 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
     }
 }
 
-void glmLabelManager::draw3D(){
-    glColor4f(1.,1.,1.,1.);
-    for (auto &it : pointLabels) {
-        if (it->bVisible){
-            it->draw3D(m_cameraPos);
-        }
-    }
-}
-
 void glmLabelManager::draw2D(){
     
     glColor4f(1.,1.,1.,1.);
     for (auto &it : pointLabels) {
         if (it->bVisible) {
-            it->draw();
+            it->draw2D();
         }
         it->drawDebug();
     }
     
     for (auto &it : lineLabels) {
         if (it->bVisible) {
-            it->draw(m_cameraPos);
+            it->draw2D();
         }
         it->drawDebug();
     }
     
     glColor4f(1.,1.,1.,1.);
+}
+
+void glmLabelManager::draw3D(){
+    glColor4f(1.,1.,1.,1.);
+    for (auto &it : pointLabels) {
+        if (it->bVisible){
+            it->draw3D();
+        }
+    }
 }

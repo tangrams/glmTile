@@ -8,10 +8,10 @@
 
 #include "glmFeatureLabel.h"
 
-glmFeatureLabel::glmFeatureLabel():bVisible(false), m_text("NONE"), m_bChanged(true){
+glmFeatureLabel::glmFeatureLabel():bVisible(false), m_text("NONE"), m_bChanged(true), m_cameraPos(NULL){
 }
 
-glmFeatureLabel::glmFeatureLabel(const std::string &_text):bVisible(false), m_text(_text), m_bChanged(true){
+glmFeatureLabel::glmFeatureLabel(const std::string &_text):bVisible(false), m_text(_text), m_bChanged(true), m_cameraPos(NULL){
     
 }
 
@@ -27,5 +27,9 @@ void glmFeatureLabel::setFont(glmFontRef &_fontRef){
 void glmFeatureLabel::setText(const std::string &_text){
     m_text = _text;
     m_bChanged = true;
+}
+
+void glmFeatureLabel::setCameraPos(glm::vec3 *_camPos){
+    m_cameraPos = _camPos;
 }
 

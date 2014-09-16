@@ -220,23 +220,29 @@ void glmFeatureLabelLine::drawDebug(){
     }
 }
 
-void glmFeatureLabelLine::draw(const glm::vec3 &_camPos ){
+void glmFeatureLabelLine::draw2D(){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
         for (auto &it: m_anchorLines) {
-            float alpha = glm::dot( glm::normalize(_camPos-it.originalCentroid),glm::vec3(0.,0.,1.));
+            
+            float alpha = 1.0;
+            
+            if(m_cameraPos!=0){
+                alpha = glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.));
+            }
+            
             glColor4f(1., 1., 1., alpha);
             
             if(it.bLetterByLetter){
-                drawLetterByLetter(it, _camPos);
+                drawLetterByLetter(it);
             } else {
-                drawAllTextAtOnce(it, _camPos);
+                drawAllTextAtOnce(it);
             }
         }
         
     }
 }
 
-void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos){
+void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
     for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
@@ -293,11 +299,11 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine, con
     }
 }
 
-void glmFeatureLabelLine::drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos){
+void glmFeatureLabelLine::drawWordByWord(const glmSmartLine &_anchorLine){
     
 }
 
-void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos){
+void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine){
     for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
@@ -360,4 +366,8 @@ void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine, co
             }
         }
     }
+}
+
+void glmFeatureLabelLine::draw3D(){
+    
 }

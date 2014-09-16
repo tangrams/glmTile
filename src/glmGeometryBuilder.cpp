@@ -106,18 +106,26 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     //  merge buildings (both important for have smarter labels)
     //
     for (auto &pointLabel: _tile.labeledPoints) {
-        for (auto &otherBuilding : _tile.byLayers["buildings"]) {
-            
-            if (pointLabel.get() != otherBuilding.get()
+        
+        for(int i = _tile.byLayers["buildings"].size()-1; i >= 0; i-- ){
+            if (pointLabel.get() != NULL
+                && _tile.byLayers["buildings"][i].get() != NULL
+                && pointLabel.get() != _tile.byLayers["buildings"][i].get()
                 && pointLabel->shapes[0].size() > 0 ) {
                 
-                for (auto &otherShapes : otherBuilding->shapes) {
-                    glm::vec3 centroid = otherShapes.getCentroid();
+                if ( pointLabel->idString != _tile.byLayers["buildings"][i]->idString) {
                     
+                    glm::vec3 centroid = _tile.byLayers["buildings"][i]->shapes[0].getCentroid();
                     if ( pointLabel->shapes[0].isInside(centroid.x, centroid.y) ) {
-                        pointLabel->shapes.push_back(otherShapes);
+                        mergeFeature(pointLabel, _tile.byLayers["buildings"][i]);
+                        
+                        //  Erase the merged geometry
+                        //
+                        deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
                     }
+                    
                 }
+                
             }
         }
         
@@ -130,6 +138,8 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
             }
         }
     }
+    
+    
 }
 
 glmTile glmGeometryBuilder::getFromFile(std::string _filename){
@@ -149,6 +159,59 @@ glmTile glmGeometryBuilder::getFromFile(std::string _filename){
     glmTile newTile;
     load(m_jsonRoot, newTile);
     return newTile;
+}
+
+void glmGeometryBuilder::mergeFeature(const glmFeatureRef &_father, const glmFeatureRef &_child){
+    
+    if( _father.get() != NULL
+       && _child.get() != NULL
+       && _father.get() != _child.get() ){
+        
+        if(_father->idString != _child->idString){
+            for (auto &it: _child->shapes) {
+                _father->shapes.push_back(it);
+            }
+            
+            _father->add( *((glmMesh*)_child.get()) );
+        }
+    }
+}
+
+void glmGeometryBuilder::deleteFeature( glmTile &_tile, const std::string &_idString ){
+    
+    for (auto &layer: _tile.byLayers ) {
+        for (int i = layer.second.size()-1 ; i >= 0 ; i--) {
+            if (layer.second[i]->idString == _idString) {
+                layer.second.erase(layer.second.begin()+i);
+                break;
+            }
+        }
+    }
+    
+    for (int i = _tile.labeledFeatures.size()-1 ; i >= 0 ; i--) {
+        if (_tile.labeledFeatures[i]->idString == _idString) {
+            _tile.labeledFeatures.erase(_tile.labeledFeatures.begin()+i);
+            break;
+        }
+    }
+    
+    for (int i = _tile.labeledLines.size()-1 ; i >= 0 ; i--) {
+        if (_tile.labeledLines[i]->idString == _idString) {
+            _tile.labeledLines.erase(_tile.labeledLines.begin()+i);
+            break;
+        }
+    }
+    
+    for (int i = _tile.labeledPoints.size()-1 ; i >= 0 ; i--) {
+        if (_tile.labeledPoints[i]->idString == _idString) {
+            _tile.labeledPoints.erase(_tile.labeledPoints.begin()+i);
+            break;
+        }
+    }
+    
+    if(labelManager!=NULL){
+        labelManager->deleteLabel(_idString);
+    }
 }
 
 glmTile glmGeometryBuilder::getFromWeb(int _tileX, int _tileY, int _zoom){
@@ -200,7 +263,10 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
-                labelManager->pointLabels.push_back(labelRef);
+                
+                if(labelManager!=NULL){
+                    labelManager->addPointLabel(labelRef);
+                }
                 
                 feature = labelRef;
                 
@@ -232,7 +298,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
-                labelManager->pointLabels.push_back(labelRef);
+                if(labelManager!=NULL){
+                    labelManager->addPointLabel(labelRef);
+                }
                 
                 feature = labelRef;
             }
@@ -255,7 +323,10 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledLines.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
-                labelManager->lineLabels.push_back(labelRef);
+                
+                if(labelManager!=NULL){
+                    labelManager->addLineLabel(labelRef);
+                }
                 
                 feature = labelRef;
             }
@@ -276,7 +347,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledLines.push_back(labelRef);
                 
-                labelManager->lineLabels.push_back(labelRef);
+                if(labelManager!=NULL){
+                    labelManager->addLineLabel(labelRef);
+                }
                 
                 feature = labelRef;
             }
@@ -304,7 +377,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
-                labelManager->pointLabels.push_back(labelRef);
+                if(labelManager!=NULL){
+                    labelManager->addPointLabel(labelRef);
+                }
                 
                 feature = labelRef;
             }
@@ -325,7 +400,9 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
-                labelManager->pointLabels.push_back(labelRef);
+                if(labelManager!=NULL){
+                    labelManager->addPointLabel(labelRef);
+                }
                 
                 feature = labelRef;
             }

@@ -20,7 +20,8 @@ public:
     virtual ~glmFeatureLabelLine();
     
     void    updateProjection();
-    void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
+    void    draw2D();
+    void    draw3D();
     void    drawDebug();
     
     float   labelsDistance;
@@ -32,9 +33,9 @@ protected:
     void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance);
     void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
     
-    void    drawAllTextAtOnce(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
-    void    drawWordByWord(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
-    void    drawLetterByLetter(const glmSmartLine &_anchorLine, const glm::vec3 &_camPos);
+    void    drawAllTextAtOnce(const glmSmartLine &_anchorLine);
+    void    drawWordByWord(const glmSmartLine &_anchorLine);
+    void    drawLetterByLetter(const glmSmartLine &_anchorLine);
     
     //  Dynamic projected 2D label line and anchors
     std::vector<glmSmartLine> m_anchorLines;

@@ -32,8 +32,8 @@ public:
     bool    isInside(const glm::vec3 &_point);
     
     void    updateProjection();
-    void    draw(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
-    void    draw3D(const glm::vec3 &_camPos = glm::vec3(0.,0.,0.));
+    void    draw2D();
+    void    draw3D();
 
     void    drawDebug();
     

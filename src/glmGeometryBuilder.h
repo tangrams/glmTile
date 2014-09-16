@@ -39,6 +39,9 @@ public:
     glmTile getFromFile(std::string _fileName);
     glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
     
+    void mergeFeature(const glmFeatureRef &_father, const glmFeatureRef &_child);
+    void deleteFeature( glmTile &_tile, const std::string &_idString );
+    
     std::map< std::string, glm::vec4 > LayerColorPalette;
     
     float lineWidth;
