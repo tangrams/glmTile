@@ -201,7 +201,7 @@ void glmFeatureLabelPoint::drawDebug(){
         it.draw();
     }
     glDisable(GL_LINE_STIPPLE);
-
+    drawCross(m_anchorPoint,3.0);
     
     if(!bVisible){
         glColor4f(1., 1., 1.,0.2);
@@ -210,8 +210,5 @@ void glmFeatureLabelPoint::drawDebug(){
         glColor4f(1., 1., 1.,1.);
         getLabel(50).drawCorners();
     }
-    
-    glColor4f(1., 1., 1.,1.);
-    drawCross(m_anchorPoint,3.0);
 }
 
