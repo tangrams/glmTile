@@ -33,6 +33,7 @@ public:
     bool mergDuplicateLineLabels();
     bool mergeDuplicatePointLabels();
     
+    void forceProjectionUpdate();
     void updateCameraPosition( const glm::vec3 &_pos );
     
     void updateFont();

@@ -91,6 +91,10 @@ void glmLabelManager::updateCameraPosition( const glm::vec3 &_pos ){
     }
 }
 
+void glmLabelManager::forceProjectionUpdate(){
+    m_bProjectionChanged = true;
+}
+
 void glmLabelManager::updateProjection(){
     
     if(m_bProjectionChanged){

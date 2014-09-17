@@ -30,7 +30,7 @@ protected:
     void    updateCached();
 
     void    seedAnchorAt(glmSmartLine &_anchorLine, float _pct);
-    void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance);
+    void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
     void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
     
     void    drawAllTextAtOnce(const glmSmartLine &_anchorLine);

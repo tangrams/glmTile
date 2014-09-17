@@ -8,7 +8,7 @@
 
 #include "glmFeatureLabelLine.h"
 
-glmFeatureLabelLine::glmFeatureLabelLine():maxDistance(500){
+glmFeatureLabelLine::glmFeatureLabelLine():maxDistance(300){
 }
 
 glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text):maxDistance(500){
@@ -104,7 +104,7 @@ void glmFeatureLabelLine::updateProjection(){
                 seedAnchorOnSegmentsAt(it,minDistance,maxDistance);
                 
                 if (it.marks.size() == 0) {
-                    seedAnchorsEvery(it,maxDistance);
+                    seedAnchorsEvery(it,minDistance,maxDistance);
                     it.bLetterByLetter  = true;
                 }
                 
@@ -137,21 +137,22 @@ void glmFeatureLabelLine::seedAnchorAt(glmSmartLine &_anchorLine, float _pct ){
     _anchorLine.marks.push_back(offset);
 }
 
-void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _distance){
-    float totalLength = _anchorLine.getLength();
-    float stepLength = m_label.width+_distance;
+void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance){
+    float segmentLength = _anchorLine.getLength();
     
-    //  Calculate how many Labels with margins can fit?
-    int nTimes = totalLength/stepLength;
-    float tLenght = stepLength*(float)nTimes;
+    //  How many times?
+    int nTimes = segmentLength/(m_label.width+_maxDistance);
+    
+    //  At what distance between each other?
+    float margin = (segmentLength-m_label.width*(float)nTimes)/((float)nTimes+1.0);
     
     //  Center the Labels
-    float seed = (totalLength-tLenght)*0.5;
+    float seed = margin;
     
     //  Add anchor points for seeds every _distance
-    while (seed < totalLength-stepLength) {
-        _anchorLine.marks.push_back(seed+_distance*0.5);
-        seed += stepLength;
+    for (int i = 0; i < nTimes; i++) {
+        _anchorLine.marks.push_back(seed);
+        seed += m_label.width+margin;
     }
 }
 
@@ -160,11 +161,12 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
     float lastSeed = 0.0;
     for (int i = 0; i < _anchorLine.size()-1; i++) {
         float offset = _anchorLine.getDistances()[i];
-        float segmentLength = _anchorLine.getPolars()[i].r;
+        
+        float segmentLength = _anchorLine.getDistances()[i+1]-_anchorLine.getDistances()[i];//_anchorLine.getPolars()[i].r;
         
         //  Fits?
         //
-        if( segmentLength >  m_label.width+_minDistance ){
+        if( segmentLength >= (m_label.width+_maxDistance) ){
 
             //  How many times?
             int nTimes = segmentLength/(m_label.width+_maxDistance);
@@ -176,16 +178,14 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             float seed = margin;
             for (int i = 0; i < nTimes; i++) {
                 float potentialSeed = offset + seed ;
-                
                 if( potentialSeed-lastSeed > _minDistance ){
                     lastSeed = potentialSeed;
                     _anchorLine.marks.push_back(lastSeed);
+                    seed += m_label.width+margin;
                 }
-                
-                seed += m_label.width+margin;
             }
             
-        } else if ( segmentLength > m_label.width){
+        } else if ( segmentLength >= m_label.width+_minDistance){
             
             //  Only one time
             //
@@ -201,18 +201,15 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
 
 void glmFeatureLabelLine::draw2D(){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
-        for (auto &it: m_anchorLines) {
-            
-            // TODO: fade alpha based on angle and distance
-            //
-            if(m_cameraPos!=0 && bVisible){
-                float angle = glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.));
-                m_alpha = lerpValue(m_alpha, angle, 0.1);
-            } else {
-                m_alpha = lerpValue(m_alpha, 0.0, 0.1);
-            }
-            
-            if(m_alpha > 0){
+        if(m_cameraPos!=0 && bVisible){
+            float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),glm::vec3(0.,0.,1.));
+            m_alpha = lerpValue(m_alpha,powf( CLAMP(angle,0.01,1.0), 1.15 ),0.1);
+        } else {
+            m_alpha = lerpValue(m_alpha,0.0, 0.1);
+        }
+        
+        if(m_alpha > 0.1){
+            for (auto &it: m_anchorLines) {
                 glColor4f(1., 1., 1., m_alpha);
                 
                 if(it.bLetterByLetter){
@@ -227,6 +224,8 @@ void glmFeatureLabelLine::draw2D(){
 }
 
 void glmFeatureLabelLine::drawDebug(){
+    
+    glColor4f(1., 1., 1., m_alpha);
     
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);
@@ -243,6 +242,14 @@ void glmFeatureLabelLine::drawDebug(){
             } else {
                 glLineWidth(1);
                 drawCross(it[i]);
+                
+                glPushMatrix();
+                glTranslated(it[i].x, it[i].y, it[i].z);
+                glScalef(0.75,-0.75,1);
+                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
+                glTranslated(5.,3.,0.);
+                m_font->drawString( toString( (int)it.getDistances()[i]) );
+                glPopMatrix();
             }
         }
     }
@@ -280,7 +287,7 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
                 glPopMatrix();
                 
             } else {
-                break;
+//                break;
             }
         } else {
             glm::vec3 src = _anchorLine.getPositionAt(_offset);
@@ -299,7 +306,7 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
                 
                 glPopMatrix();
             } else {
-                break;
+//                break;
             }
         }
     }
