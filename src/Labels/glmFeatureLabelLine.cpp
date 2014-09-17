@@ -8,10 +8,10 @@
 
 #include "glmFeatureLabelLine.h"
 
-glmFeatureLabelLine::glmFeatureLabelLine():labelsDistance(500){
+glmFeatureLabelLine::glmFeatureLabelLine():maxDistance(500){
 }
 
-glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text):labelsDistance(500){
+glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text):maxDistance(500){
     setText(_text);
 }
 
@@ -86,6 +86,7 @@ void glmFeatureLabelLine::updateProjection(){
             if(smartline.size()>1
                && smartline.getLength() > 0.0
                && m_label.width < smartline.getLength()){
+                smartline.originalCentroid = iShape.getCentroid();
                 m_anchorLines.push_back(smartline);
             }
         }
@@ -100,10 +101,10 @@ void glmFeatureLabelLine::updateProjection(){
                 
                 //  Place the anchor points for the text labels
                 //
-                seedAnchorOnSegmentsAt(it,labelsDistance*0.25,labelsDistance); // Multiple labels will apear every XXXXX screen pixels
+                seedAnchorOnSegmentsAt(it,minDistance,maxDistance);
                 
                 if (it.marks.size() == 0) {
-                    seedAnchorsEvery(it,labelsDistance);
+                    seedAnchorsEvery(it,maxDistance);
                     it.bLetterByLetter  = true;
                 }
                 
@@ -205,9 +206,8 @@ void glmFeatureLabelLine::draw2D(){
             // TODO: fade alpha based on angle and distance
             //
             if(m_cameraPos!=0 && bVisible){
-                m_alpha = lerpValue(m_alpha,
-                                   glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.))
-                                   ,0.1);
+                float angle = glm::dot( glm::normalize( *m_cameraPos - it.originalCentroid),glm::vec3(0.,0.,1.));
+                m_alpha = lerpValue(m_alpha, angle, 0.1);
             } else {
                 m_alpha = lerpValue(m_alpha, 0.0, 0.1);
             }
@@ -306,7 +306,8 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
 }
 
 void glmFeatureLabelLine::drawWordByWord(const glmSmartLine &_anchorLine){
-    
+    //  TODO:
+    //
 }
 
 void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine){

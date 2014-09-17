@@ -24,7 +24,7 @@ public:
     void    draw3D();
     void    drawDebug();
     
-    float   labelsDistance;
+    float   maxDistance;
     
 protected:
     void    updateCached();

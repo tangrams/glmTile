@@ -27,6 +27,7 @@ public:
     virtual void draw2D() = 0;
     virtual void draw3D() = 0;
     
+    float   minDistance;
     bool    bVisible;
     
 protected:

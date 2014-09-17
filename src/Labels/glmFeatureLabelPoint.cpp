@@ -55,7 +55,7 @@ bool glmFeatureLabelPoint::isOver(const glmFeatureLabelPoint *_other){
     if(m_bChanged){
         updateCached();
     }
-    return m_label.intersects(_other->getLabel(50)) || isInside(_other->getAnchorPoint());
+    return m_label.intersects(_other->getLabel(minDistance)) || isInside(_other->getAnchorPoint());
 }
 
 bool glmFeatureLabelPoint::isInside(const glm::vec3 &_point){
