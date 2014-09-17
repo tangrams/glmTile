@@ -17,6 +17,10 @@ glmFeatureLabel::glmFeatureLabel(const std::string &_text):m_text(_text), m_alph
 glmFeatureLabel::~glmFeatureLabel(){
 };
 
+std::string glmFeatureLabel::getText(){
+    return m_text;
+}
+
 void glmFeatureLabel::setFont(glmFontRef &_fontRef){
     m_font = _fontRef;
     m_bChanged = true;

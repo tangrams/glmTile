@@ -243,13 +243,13 @@ void glmFeatureLabelLine::drawDebug(){
                 glLineWidth(1);
                 drawCross(it[i]);
                 
-                glPushMatrix();
-                glTranslated(it[i].x, it[i].y, it[i].z);
-                glScalef(0.75,-0.75,1);
-                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
-                glTranslated(5.,3.,0.);
-                m_font->drawString( toString( (int)it.getDistances()[i]) );
-                glPopMatrix();
+//                glPushMatrix();
+//                glTranslated(it[i].x, it[i].y, it[i].z);
+//                glScalef(0.75,-0.75,1);
+//                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
+//                glTranslated(5.,3.,0.);
+//                m_font->drawString( toString( (int)it.getDistances()[i]) );
+//                glPopMatrix();
             }
         }
     }

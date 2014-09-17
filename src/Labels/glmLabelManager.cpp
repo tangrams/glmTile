@@ -35,6 +35,7 @@ void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
         _lineLabel->setFont(m_font);
     }
     _lineLabel->setCameraPos(&m_cameraPos);
+    
     lineLabels.push_back(_lineLabel);
     
     //  TODO: Check duplicates street names
@@ -45,9 +46,25 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
         _pointLabel->setFont(m_font);
     }
     _pointLabel->setCameraPos(&m_cameraPos);
-    pointLabels.push_back(_pointLabel);
     
-    //  TODO: Check duplicates
+    bool isPrev = false;
+//    for (int i = 0; i < pointLabels.size(); i++) {
+//        if(pointLabels[i]->getText() == _pointLabel->getText()){
+//            
+//            for (auto &jt: _pointLabel->shapes) {
+//                pointLabels[i]->shapes.push_back(jt);
+//            }
+//        
+//            _pointLabel->shapes.clear();
+//            
+//            isPrev = true;
+//            break;
+//        }
+//    }
+    
+    if(!isPrev){
+        pointLabels.push_back(_pointLabel);
+    }
 }
 
 bool glmLabelManager::deleteLabel(const std::string &_idString){

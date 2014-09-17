@@ -110,23 +110,34 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
         for(int i = _tile.byLayers["buildings"].size()-1; i >= 0; i-- ){
             if (pointLabel.get() != NULL
                 && _tile.byLayers["buildings"][i].get() != NULL
-                && pointLabel.get() != _tile.byLayers["buildings"][i].get()
-                && pointLabel->shapes[0].size() > 0 ) {
+                && pointLabel.get() != _tile.byLayers["buildings"][i].get() ) {
                 
-                if ( pointLabel->idString != _tile.byLayers["buildings"][i]->idString) {
-                    
-                    glm::vec3 centroid = _tile.byLayers["buildings"][i]->shapes[0].getCentroid();
-                    if ( pointLabel->shapes[0].isInside(centroid.x, centroid.y) ) {
-                        mergeFeature(pointLabel, _tile.byLayers["buildings"][i]);
-                        
-                        //  Erase the merged geometry
-                        //
-                        deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
+                bool bOverlap = false;
+                
+                for (auto &it: _tile.byLayers["buildings"][i]->shapes ) {
+                    glm::vec3 centroid = it.getCentroid();
+                    for (auto &jt: pointLabel->shapes){
+                        if( jt.isInside(centroid.x, centroid.y) ){
+                            bOverlap = true;
+                            break;
+                        }
                     }
                     
+                    if(bOverlap){
+                        break;
+                    }
+                }
+                
+                if(bOverlap){
+                    mergeFeature(pointLabel, _tile.byLayers["buildings"][i]);
+                    
+                    //  Erase the merged geometry
+                    //
+                    deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
                 }
                 
             }
+            
         }
         
         int maxHeight = 0;

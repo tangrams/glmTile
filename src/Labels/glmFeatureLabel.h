@@ -23,6 +23,8 @@ public:
     void setCameraPos(glm::vec3 *_camPos);
     void setText(const std::string &_text);
     
+    std::string getText();
+    
     virtual void updateProjection() = 0;
     virtual void draw2D() = 0;
     virtual void draw3D() = 0;

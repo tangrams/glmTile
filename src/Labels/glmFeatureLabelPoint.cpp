@@ -79,7 +79,7 @@ void glmFeatureLabelPoint::updateProjection(){
         }
         
         m_anchorLines.clear();
-        
+        glmPolyline allPoints;
         for (auto &it: shapes) {
             glmSmartLine line;
             for (int i = 0; i < it.size(); i++) {
