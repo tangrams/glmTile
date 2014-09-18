@@ -133,7 +133,7 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
                     
                     //  Erase the merged geometry
                     //
-                    deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
+                    //deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
                 }
                 
             }
@@ -141,13 +141,16 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
         }
         
         int maxHeight = 0;
+        glm::vec3 center;
         for (auto &it: pointLabel->shapes) {
             if (it[0].z > maxHeight) {
                 maxHeight = it[0].z;
-                
-                pointLabel->setPosition(it.getCentroid());
             }
+            center += it.getCentroid();
         }
+        center = center / (float)pointLabel->shapes.size();
+        center.z = maxHeight;
+        pointLabel->setPosition(center);
     }
     
     
@@ -182,8 +185,9 @@ void glmGeometryBuilder::mergeFeature(const glmFeatureRef &_father, const glmFea
             for (auto &it: _child->shapes) {
                 _father->shapes.push_back(it);
             }
-            
-            _father->add( *((glmMesh*)_child.get()) );
+            _child->shapes.clear();
+
+//            _father->add( *((glmMesh*)_child.get()) );
         }
     }
 }
@@ -275,16 +279,20 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
+                labelRef->idString = featureListJson[i]["id"].asString();
+                
+                polyline.add(pos);
+                labelRef->shapes.push_back(polyline);
+                
                 if(labelManager!=NULL){
                     labelManager->addPointLabel(labelRef);
                 }
                 
                 feature = labelRef;
-                
-                polyline.add(pos);
+            } else {
+                feature->shapes.push_back(polyline);
             }
-            
-            feature->shapes.push_back(polyline);
+        
             pointJson2Mesh(geometryJson["coordinates"], *feature, 3, 6, minHeight);
             
         } else if (geometryType.compare("MultiPoint") == 0) {
@@ -309,14 +317,17 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
+                labelRef->idString = featureListJson[i]["id"].asString();
+                labelRef->shapes.push_back(polyline);
                 if(labelManager!=NULL){
                     labelManager->addPointLabel(labelRef);
                 }
                 
                 feature = labelRef;
+            } else {
+                feature->shapes.push_back(polyline);
             }
-            
-            feature->shapes.push_back(polyline);
+
             for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
                 pointJson2Mesh(geometryJson["coordinates"][j], *feature, 3.0, 6, minHeight);
             }
@@ -334,15 +345,17 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledLines.push_back(labelRef);
                 
                 labelRef->setFont(labelManager->getFont());
-                
+                labelRef->idString = featureListJson[i]["id"].asString();
+                labelRef->shapes.push_back(polyline);
                 if(labelManager!=NULL){
                     labelManager->addLineLabel(labelRef);
                 }
                 
                 feature = labelRef;
+            } else {
+                feature->shapes.push_back(polyline);
             }
             
-            feature->shapes.push_back(polyline);
             feature->add(polyline,lineWidth);
             
         } else if (geometryType.compare("MultiLineString") == 0) {
@@ -353,22 +366,30 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 
                 glmFeatureLabelLineRef labelRef(new glmFeatureLabelLine( propsJson["name"].asString() ));
 
-                labelRef->setFont(labelManager->getFont());
-                
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledLines.push_back(labelRef);
+                
+                labelRef->setFont(labelManager->getFont());
+                labelRef->idString = featureListJson[i]["id"].asString();
+                
+                for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
+                    polyline.clear();
+                    lineJson2Polyline(geometryJson["coordinates"][j],polyline,minHeight);
+                    labelRef->shapes.push_back(polyline);
+                }
                 
                 if(labelManager!=NULL){
                     labelManager->addLineLabel(labelRef);
                 }
                 
                 feature = labelRef;
-            }
-            
-            for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
-                polyline.clear();
-                lineJson2Polyline(geometryJson["coordinates"][j],polyline,minHeight);
-                feature->shapes.push_back(polyline);
+            } else {
+                for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
+                    polyline.clear();
+                    lineJson2Polyline(geometryJson["coordinates"][j],polyline,minHeight);
+                    feature->shapes.push_back(polyline);
+                    
+                }
             }
             
             feature->add(polyline,lineWidth);
@@ -388,14 +409,17 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
+                labelRef->idString = featureListJson[i]["id"].asString();
+                labelRef->shapes.push_back(polyline);
                 if(labelManager!=NULL){
                     labelManager->addPointLabel(labelRef);
                 }
                 
                 feature = labelRef;
+            } else {
+                feature->shapes.push_back(polyline);
             }
             
-            feature->shapes.push_back(polyline);
             polygonJson2Mesh(geometryJson["coordinates"], *feature, minHeight, height);
             
         } else if (geometryType.compare("MultiPolygon") == 0) {
@@ -411,20 +435,30 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 _tile.labeledFeatures.push_back(labelRef);
                 _tile.labeledPoints.push_back(labelRef);
                 
+                labelRef->idString = featureListJson[i]["id"].asString();
+                for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
+                    
+                    polyline.clear();
+                    lineJson2Polyline(geometryJson["coordinates"][j], polyline, height);
+                    labelRef->shapes.push_back(polyline);
+                    
+                    polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
+                }
+                
                 if(labelManager!=NULL){
                     labelManager->addPointLabel(labelRef);
                 }
                 
                 feature = labelRef;
-            }
-            
-            for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
-                
-                polyline.clear();
-                lineJson2Polyline(geometryJson["coordinates"][j], polyline, height);
-                feature->shapes.push_back(polyline);
-                
-                polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
+            } else {
+                for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
+                    
+                    polyline.clear();
+                    lineJson2Polyline(geometryJson["coordinates"][j], polyline, height);
+                    feature->shapes.push_back(polyline);
+                    
+                    polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
+                }
             }
             
         } else if (geometryType.compare("GeometryCollection") == 0) {

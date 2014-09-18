@@ -30,8 +30,8 @@ public:
     
     bool deleteLabel(const std::string &_idString);
     
-    bool mergDuplicateLineLabels();
-    bool mergeDuplicatePointLabels();
+    void mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child );
+    void mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child);
     
     void forceProjectionUpdate();
     void updateCameraPosition( const glm::vec3 &_pos );

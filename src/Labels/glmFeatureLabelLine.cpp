@@ -108,10 +108,10 @@ void glmFeatureLabelLine::updateProjection(){
                     it.bLetterByLetter  = true;
                 }
                 
-                if (it.marks.size() == 0) {
-                    seedAnchorAt(it, 0.5);
-                    it.bLetterByLetter = true;
-                }
+//                if (it.marks.size() == 0) {
+//                    seedAnchorAt(it, 0.5);
+//                    it.bLetterByLetter = true;
+//                }
             }
         }
         

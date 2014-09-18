@@ -176,7 +176,7 @@ void glmFeatureLabelPoint::draw3D(){
     
     m_offset.z = lerpValue(m_offset.z,angle*200,0.1);
     
-    if(m_alpha > 0.0){
+    if(m_alpha > 0.1){
         line.clear();
         line.setDrawMode(GL_LINES);
         line.addVertex(m_centroid);

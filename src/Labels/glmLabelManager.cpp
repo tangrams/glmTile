@@ -41,6 +41,10 @@ void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
     //  TODO: Check duplicates street names
 }
 
+void glmLabelManager::mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child ){
+    
+}
+
 void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
     if(m_font != NULL){
         _pointLabel->setFont(m_font);
@@ -48,23 +52,49 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
     _pointLabel->setCameraPos(&m_cameraPos);
     
     bool isPrev = false;
-//    for (int i = 0; i < pointLabels.size(); i++) {
-//        if(pointLabels[i]->getText() == _pointLabel->getText()){
-//            
-//            for (auto &jt: _pointLabel->shapes) {
-//                pointLabels[i]->shapes.push_back(jt);
-//            }
-//        
-//            _pointLabel->shapes.clear();
-//            
-//            isPrev = true;
-//            break;
-//        }
-//    }
+    for (int i = 0; i < pointLabels.size(); i++) {
+        
+        if(pointLabels[i]->idString == _pointLabel->idString ){
+           
+            mergePointLabels(pointLabels[i],_pointLabel);
+            
+            isPrev = true;
+            break;
+        }
+    }
     
     if(!isPrev){
         pointLabels.push_back(_pointLabel);
     }
+}
+
+void glmLabelManager::mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child){
+    std::cout << "Mergin " << _father->getText() << std::endl;
+    
+    //  Move shapes from _child to father
+    //
+    for (int i = _child->shapes.size()-1; i >= 0; i--) {
+        _father->shapes.push_back(_child->shapes[i]);
+        _child->shapes.erase(_child->shapes.begin()+i);
+    }
+    
+    std::cout << " - Father " << _father->shapes.size() << std::endl;
+    std::cout << " - Child " << _child->shapes.size() << std::endl;
+    
+    //  Re center father
+    //
+    int maxHeight = 0;
+    glm::vec3 center;
+    for (auto &it: _father->shapes) {
+        if (it[0].z > maxHeight) {
+            maxHeight = it[0].z;
+        }
+        center += it.getCentroid();
+    }
+    center = center / (float)_father->shapes.size();
+    center.z = maxHeight;
+    _father->setPosition(center);
+    
 }
 
 bool glmLabelManager::deleteLabel(const std::string &_idString){
