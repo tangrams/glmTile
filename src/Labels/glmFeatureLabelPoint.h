@@ -34,10 +34,10 @@ public:
 
     void    drawDebug();
     
-    glmMesh line;
-    
 protected:
     void    updateCached();
+    
+    glmMesh     m_line;
     
     glm::vec3   m_offset;
     glm::vec3   m_anchorPoint;

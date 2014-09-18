@@ -12,6 +12,8 @@
 #include "glmPolyline.h"
 #include "glmSmartLine.h"
 
+#include "glmFeatureLabelPoint.h"
+
 class glmFeatureLabelLine : public glmFeatureLabel{
 public:
     
@@ -25,6 +27,8 @@ public:
     void    drawDebug();
     
     float   maxDistance;
+    
+    std::vector<glmFeatureLabelPointRef> *pointLabels;
     
 protected:
     void    updateCached();

@@ -243,13 +243,13 @@ void glmFeatureLabelLine::drawDebug(){
                 glLineWidth(1);
                 drawCross(it[i]);
                 
-//                glPushMatrix();
-//                glTranslated(it[i].x, it[i].y, it[i].z);
-//                glScalef(0.75,-0.75,1);
-//                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
-//                glTranslated(5.,3.,0.);
-//                m_font->drawString( toString( (int)it.getDistances()[i]) );
-//                glPopMatrix();
+                glPushMatrix();
+                glTranslated(it[i].x, it[i].y, it[i].z);
+                glScalef(0.75,-0.75,1);
+                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
+                glTranslated(5.,3.,0.);
+                m_font->drawString( toString( (int)it.getDistances()[i]) );
+                glPopMatrix();
             }
         }
     }
@@ -267,48 +267,62 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
         glm::vec3 diff = _anchorLine[0]-_anchorLine[_anchorLine.size()-1];
         angle = atan2f(-diff.y, diff.x);
         
-        if(angle < PI*0.5 && angle > -PI*0.5){
-            glm::vec3 src = _anchorLine.getPositionAt(_offset);
+        glm::vec3 src = _anchorLine.getPositionAt(_offset);
+        
+        if(screen.inside(src)){
+            double rot = _anchorLine.getAngleAt(_offset);
             
-            if(screen.inside(src)){
-                double rot = _anchorLine.getAngleAt(_offset);
-                
-                glPushMatrix();
-                glTranslated(src.x, src.y, src.z);
-                
-                glScalef(1,-1,1);
-                glRotated(rot*RAD_TO_DEG, 0, 0, -1);
-                
-                glScaled(-1, -1, 1);
-                glTranslated(-m_label.width, 0, 0);
-                
-                glTranslatef(0., -m_label.height*0.5,0.);
-                m_font->drawString( m_text );
-                glPopMatrix();
-                
-            } else {
-//                break;
+            //  DEBUG
+            //  Draw boundign box
+            //
+            glmRectangle boundingBox = glmPolyline(m_label,angle).getBoundingBox();
+            boundingBox.translate(_anchorLine.getPositionAt(_offset+m_label.width*0.5));
+            boundingBox.drawCorners();
+            
+            bool bOver = false;
+            
+            for (int i = 0; i < pointLabels->size(); i++ ){
+                if(pointLabels->at(i)->bVisible){
+                    if( boundingBox.intersects(pointLabels->at(i)->getLabel(0) ) ){
+                        bOver = true;
+                        break;
+                    }
+                }
             }
-        } else {
-            glm::vec3 src = _anchorLine.getPositionAt(_offset);
             
-            if(screen.inside(src)){
-                double rot = _anchorLine.getAngleAt(_offset);
-                
-                glPushMatrix();
-                glTranslated(src.x, src.y, src.z);
-                
-                glScalef(1,-1,1);
-                glRotated(rot*RAD_TO_DEG, 0, 0, -1);
-                
-                glTranslatef(0., -m_label.height*0.5,0.);
-                m_font->drawString( m_text );
-                
-                glPopMatrix();
-            } else {
-//                break;
+            if(!bOver){
+                if(angle < PI*0.5 && angle > -PI*0.5){
+                    
+                    glPushMatrix();
+                    glTranslated(src.x, src.y, src.z);
+                    
+                    glScalef(1,-1,1);
+                    glRotated(rot*RAD_TO_DEG, 0, 0, -1);
+                    
+                    glScaled(-1, -1, 1);
+                    glTranslated(-m_label.width, 0, 0);
+                    
+                    glTranslatef(0., -m_label.height*0.5,0.);
+                    m_font->drawString( m_text );
+                    glPopMatrix();
+                    
+                } else {
+                    
+                    glPushMatrix();
+                    glTranslated(src.x, src.y, src.z);
+                    
+                    glScalef(1,-1,1);
+                    glRotated(rot*RAD_TO_DEG, 0, 0, -1);
+                    
+                    glTranslatef(0., -m_label.height*0.5,0.);
+                    m_font->drawString( m_text );
+                    
+                    glPopMatrix();
+                    
+                }
             }
         }
+        
     }
 }
 

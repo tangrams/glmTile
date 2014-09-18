@@ -133,7 +133,7 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
                     
                     //  Erase the merged geometry
                     //
-                    //deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
+                    deleteFeature(_tile, _tile.byLayers["buildings"][i]->idString);
                 }
                 
             }
@@ -186,8 +186,7 @@ void glmGeometryBuilder::mergeFeature(const glmFeatureRef &_father, const glmFea
                 _father->shapes.push_back(it);
             }
             _child->shapes.clear();
-
-//            _father->add( *((glmMesh*)_child.get()) );
+            _father->add( *((glmMesh*)_child.get()) );
         }
     }
 }

@@ -35,6 +35,7 @@ void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
         _lineLabel->setFont(m_font);
     }
     _lineLabel->setCameraPos(&m_cameraPos);
+    _lineLabel->pointLabels = &pointLabels;
     
     lineLabels.push_back(_lineLabel);
     
@@ -69,7 +70,6 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
 }
 
 void glmLabelManager::mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child){
-    std::cout << "Mergin " << _father->getText() << std::endl;
     
     //  Move shapes from _child to father
     //
@@ -77,9 +77,6 @@ void glmLabelManager::mergePointLabels( glmFeatureLabelPointRef &_father, glmFea
         _father->shapes.push_back(_child->shapes[i]);
         _child->shapes.erase(_child->shapes.begin()+i);
     }
-    
-    std::cout << " - Father " << _father->shapes.size() << std::endl;
-    std::cout << " - Child " << _child->shapes.size() << std::endl;
     
     //  Re center father
     //
@@ -215,7 +212,6 @@ void glmLabelManager::draw2D(){
         if(bDebugLines){
             it->drawDebug();
         }
-        
     }
     
     glColor4f(1.,1.,1.,1.);
