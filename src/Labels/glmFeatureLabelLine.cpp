@@ -210,8 +210,6 @@ void glmFeatureLabelLine::draw2D(){
         
         if(m_alpha > 0.1){
             for (auto &it: m_anchorLines) {
-                glColor4f(1., 1., 1., m_alpha);
-                
                 if(it.bLetterByLetter){
                     drawLetterByLetter(it);
                 } else {
@@ -224,8 +222,6 @@ void glmFeatureLabelLine::draw2D(){
 }
 
 void glmFeatureLabelLine::drawDebug(){
-    
-    glColor4f(1., 1., 1., m_alpha);
     
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x1111);
@@ -248,7 +244,7 @@ void glmFeatureLabelLine::drawDebug(){
                 glScalef(0.75,-0.75,1);
                 glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
                 glTranslated(5.,3.,0.);
-                m_font->drawString( toString( (int)it.getDistances()[i]) );
+                m_font->drawString( toString( (int)it.getDistances()[i]), m_alpha );
                 glPopMatrix();
             }
         }
@@ -272,12 +268,9 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
         if(screen.inside(src)){
             double rot = _anchorLine.getAngleAt(_offset);
             
-            //  DEBUG
-            //  Draw boundign box
-            //
             glmRectangle boundingBox = glmPolyline(m_label,angle).getBoundingBox();
             boundingBox.translate(_anchorLine.getPositionAt(_offset+m_label.width*0.5));
-            boundingBox.drawCorners();
+//            boundingBox.drawCorners(); // Draw boundign box for debug
             
             bool bOver = false;
             
@@ -303,7 +296,7 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
                     glTranslated(-m_label.width, 0, 0);
                     
                     glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( m_text );
+                    m_font->drawString( m_text , m_alpha);
                     glPopMatrix();
                     
                 } else {
@@ -315,7 +308,7 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
                     glRotated(rot*RAD_TO_DEG, 0, 0, -1);
                     
                     glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( m_text );
+                    m_font->drawString( m_text, m_alpha );
                     
                     glPopMatrix();
                     
@@ -361,7 +354,7 @@ void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine){
                     glTranslated(-m_lettersWidth[i], 0, 0);
                     
                     glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( std::string(1,m_text[i]));
+                    m_font->drawString( std::string(1,m_text[i]), m_alpha );
                     glPopMatrix();
                     _offset += m_lettersWidth[i];
                 } else {
@@ -384,7 +377,7 @@ void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine){
                     glRotated(rot*RAD_TO_DEG, 0, 0, -1);
                     
                     glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( std::string(1,m_text[i]));
+                    m_font->drawString( std::string(1,m_text[i]), m_alpha );
                     
                     glPopMatrix();
                     _offset += m_lettersWidth[i];

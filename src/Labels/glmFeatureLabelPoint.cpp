@@ -159,21 +159,22 @@ void glmFeatureLabelPoint::draw2D(){
         }
         
         if(m_alpha > 0.0){
-            glColor4f(1., 1., 1., m_alpha);
-            m_font->drawString(m_text, m_label.getBottomLeft());
-            glColor4f(1., 1., 1., 1.);
+            m_font->drawString(m_text, m_label.getBottomLeft(), m_alpha);
         }
     }
 }
 
 void glmFeatureLabelPoint::draw3D(){
     float angle = 0;
+    float length = 0;
     
     if(m_cameraPos!=0 ){
-        angle = (1.-glm::dot( glm::normalize( *m_cameraPos - m_centroid ), glm::vec3(0.,0.,1.)));
+        glm::vec3 dist = *m_cameraPos - m_centroid;
+        length = glm::distance(*m_cameraPos, m_centroid)*0.2;
+        angle = (1.-glm::dot( glm::normalize( dist ), glm::vec3(0.,0.,1.)));
     }
     
-    m_offset.z = lerpValue(m_offset.z,angle*200,0.1);
+    m_offset.z = lerpValue(m_offset.z,angle*length,0.1);
     
     if(m_alpha > 0.1){
         

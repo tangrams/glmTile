@@ -438,7 +438,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
                     
                     polyline.clear();
-                    lineJson2Polyline(geometryJson["coordinates"][j], polyline, height);
+                    lineJson2Polyline(geometryJson["coordinates"][j][0], polyline, height);
                     labelRef->shapes.push_back(polyline);
                     
                     polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
@@ -453,7 +453,7 @@ void glmGeometryBuilder::buildLayer(Json::Value &_jsonRoot, const std::string &_
                 for (int j = 0; j < geometryJson["coordinates"].size(); j++) {
                     
                     polyline.clear();
-                    lineJson2Polyline(geometryJson["coordinates"][j], polyline, height);
+                    lineJson2Polyline(geometryJson["coordinates"][j][0], polyline, height);
                     feature->shapes.push_back(polyline);
                     
                     polygonJson2Mesh(geometryJson["coordinates"][j], *feature, minHeight, height);
