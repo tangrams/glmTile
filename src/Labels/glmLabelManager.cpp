@@ -160,6 +160,10 @@ void glmLabelManager::updateProjection(){
                     }
                 }
             }
+        } else {
+            for (auto &it : pointLabels) {
+                it->bVisible = false;
+            }
         }
         
         if(bLines){
@@ -168,6 +172,10 @@ void glmLabelManager::updateProjection(){
                     it->setFont(m_font);
                 }
                 it->updateProjection();
+            }
+        } else {
+            for (auto &it : lineLabels) {
+                it->bVisible = false;
             }
         }
         
@@ -203,23 +211,19 @@ void glmLabelManager::draw2D(){
     
     glColor4f(1.,1.,1.,1.);
     
-    if(bPoints){
-        for (auto &it : pointLabels) {
-            it->draw2D();
-            
-            if(bDebugPoints){
-                it->drawDebug();
-            }
+    for (auto &it : pointLabels) {
+        it->draw2D();
+        
+        if(bDebugPoints){
+            it->drawDebug();
         }
     }
     
-    if(bLines){
-        for (auto &it : lineLabels) {
-            it->draw2D();
-            
-            if(bDebugLines){
-                it->drawDebug();
-            }
+    for (auto &it : lineLabels) {
+        it->draw2D();
+        
+        if(bDebugLines){
+            it->drawDebug();
         }
     }
     
