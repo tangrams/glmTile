@@ -46,6 +46,9 @@ public:
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
     
+    bool    bLines;
+    bool    bPoints;
+    
     bool    bDebugLines;
     bool    bDebugPoints;
     

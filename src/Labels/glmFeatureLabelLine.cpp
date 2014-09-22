@@ -230,25 +230,25 @@ void glmFeatureLabelLine::drawDebug(){
     }
     glDisable(GL_LINE_STIPPLE);
     
-    for (auto &it: m_anchorLines) {
-        for (int i = 0; i < it.size(); i++) {
-            if(i == 0 ){
-                glLineWidth(2);
-                drawCross(it[i],5);
-            } else {
-                glLineWidth(1);
-                drawCross(it[i]);
-                
-                glPushMatrix();
-                glTranslated(it[i].x, it[i].y, it[i].z);
-                glScalef(0.75,-0.75,1);
-                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
-                glTranslated(5.,3.,0.);
-                m_font->drawString( toString( (int)it.getDistances()[i]), m_alpha );
-                glPopMatrix();
-            }
-        }
-    }
+//    for (auto &it: m_anchorLines) {
+//        for (int i = 0; i < it.size(); i++) {
+//            if(i == 0 ){
+//                glLineWidth(2);
+//                drawCross(it[i],5);
+//            } else {
+//                glLineWidth(1);
+//                drawCross(it[i]);
+//                
+//                glPushMatrix();
+//                glTranslated(it[i].x, it[i].y, it[i].z);
+//                glScalef(0.75,-0.75,1);
+//                glRotated(it.getPolars()[i-1].a*RAD_TO_DEG, 0, 0, -1);
+//                glTranslated(5.,3.,0.);
+//                m_font->drawString( toString( (int)it.getDistances()[i]), m_alpha );
+//                glPopMatrix();
+//            }
+//        }
+//    }
 }
 
 void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){

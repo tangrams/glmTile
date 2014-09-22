@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): m_bFontChanged(true), bDebugLines(false), bDebugPoints(false) {
+glmLabelManager::glmLabelManager(): m_bFontChanged(true), bLines(true), bPoints(true), bDebugLines(false), bDebugPoints(false) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -142,29 +142,35 @@ void glmLabelManager::forceProjectionUpdate(){
 void glmLabelManager::updateProjection(){
     
     if(m_bProjectionChanged){
-        for (auto &it : pointLabels) {
-            it->updateProjection();
-        }
         
-        std::sort(pointLabels.begin(),pointLabels.end(), depthSort);
-        
-        for (int i = 0; i < pointLabels.size(); i++) {
-            if(pointLabels[i]->bVisible){
-                for (int j = i-1; j >= 0 ; j--) {
-                    if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
-                        pointLabels[i]->bVisible = false;
-                        break;
+        if(bPoints){
+            for (auto &it : pointLabels) {
+                it->updateProjection();
+            }
+            
+            std::sort(pointLabels.begin(),pointLabels.end(), depthSort);
+            
+            for (int i = 0; i < pointLabels.size(); i++) {
+                if(pointLabels[i]->bVisible){
+                    for (int j = i-1; j >= 0 ; j--) {
+                        if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
+                            pointLabels[i]->bVisible = false;
+                            break;
+                        }
                     }
                 }
             }
         }
         
-        for (auto &it : lineLabels) {
-            if(m_bFontChanged){
-                it->setFont(m_font);
+        if(bLines){
+            for (auto &it : lineLabels) {
+                if(m_bFontChanged){
+                    it->setFont(m_font);
+                }
+                it->updateProjection();
             }
-            it->updateProjection();
         }
+        
         
         m_bProjectionChanged = false;
     }
@@ -189,8 +195,6 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
                     it->bVisible = false;
                 }
             }
-            
-            
         }
     }
 }
@@ -198,19 +202,24 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
 void glmLabelManager::draw2D(){
     
     glColor4f(1.,1.,1.,1.);
-    for (auto &it : pointLabels) {
-        it->draw2D();
-        
-        if(bDebugPoints){
-            it->drawDebug();
+    
+    if(bPoints){
+        for (auto &it : pointLabels) {
+            it->draw2D();
+            
+            if(bDebugPoints){
+                it->drawDebug();
+            }
         }
     }
     
-    for (auto &it : lineLabels) {
-        it->draw2D();
-        
-        if(bDebugLines){
-            it->drawDebug();
+    if(bLines){
+        for (auto &it : lineLabels) {
+            it->draw2D();
+            
+            if(bDebugLines){
+                it->drawDebug();
+            }
         }
     }
     
@@ -218,8 +227,10 @@ void glmLabelManager::draw2D(){
 }
 
 void glmLabelManager::draw3D(){
-    glColor4f(1.,1.,1.,1.);
-    for (auto &it : pointLabels) {
-        it->draw3D();
+    if(bPoints){
+        glColor4f(1.,1.,1.,1.);
+        for (auto &it : pointLabels) {
+            it->draw3D();
+        }
     }
 }
