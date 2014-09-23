@@ -1,6 +1,6 @@
 ## 3D Labels experiments
 
-The main trick is a 2D projection of the geometry to place the text. Like HUD layer between the 3D geometry and the camera.
+The main trick is a 2D projection of the geometry to place the text. Like a HUD layer between the 3D geometry and the camera.
 
 ![projection](images/projection.png)
 
@@ -8,9 +8,9 @@ Pros:
 
 * Fonts don’t need to be resized (no need for SDF)
 
-* We only render what the see
+* No off-screen computations
 
-* We knowing exactly what the user see
+* We know exactly what the user sees
 
 Cons:
 
@@ -69,7 +69,7 @@ Cons:
 
 ![02](images/02.gif)
 
-* Curve path following
+* Curved path following
 
 ```
 	float angle = PI;
@@ -132,7 +132,7 @@ Cons:
 
 ![03](images/03.gif)
 
-* Mutual occlusion based using depth sort and bounding boxes
+* Mutual occlusion using depth sort and bounding boxes
 
 ```
 	bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
