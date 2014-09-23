@@ -1,17 +1,20 @@
 ## 3D Labels experiments
 
-The main trick is a 2D projection of the geometry to place the text.
+The main trick is a 2D projection of the geometry to place the text. Like HUD layer between the 3D geometry and the camera.
+
 ![projection](images/projection.png)
 
 Pros:
 
 * Fonts don’t need to be resized (no need for SDF)
 
-* We can compose the result image knowing exactly what the user see
+* We only render what the see
+
+* We knowing exactly what the user see
 
 Cons:
 
-* Occlusion becomes a big problem
+* Occlusion becomes a problem
 
 ### Line Labels
 
