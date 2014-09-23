@@ -17,6 +17,7 @@ Cons:
 
 * Fit and repeat
 
+```
 	float lastSeed = 0.0;
 	for (int i = 0; i < _anchorLine.size()-1; i++) {
 		float offset = _anchorLine.getDistances()[i];
@@ -52,18 +53,22 @@ Cons:
 			}
 		}
 	}
+```
 
 ![01](images/01.gif)
 
 * Fade according to tilt angle
 
+```
 float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),glm::vec3(0.,0.,1.));
             m_alpha = lerpValue(m_alpha,powf( CLAMP(angle,0.01,1.0), 1.15 ),0.1);
+```
 
 ![02](images/02.gif)
 
 * Curve path following
 
+```
 	float angle = PI;
 	glm::vec3 diff = _anchorLine[0]-_anchorLine[_anchorLine.size()-1];
 	angle = atan2f(-diff.y, diff.x);
@@ -105,6 +110,7 @@ float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),g
 			}
 		}
 	}
+```
 
 ![07](images/07.gif)
 
@@ -112,17 +118,20 @@ float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),g
 
 * Project top points 
 
+```
 	glm::ivec4 viewport;
 	glm::mat4x4 mvmatrix, projmatrix;
 	glGetIntegerv(GL_VIEWPORT, &viewport[0]);
 	glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
 	glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
 	m_anchorPoint = glm::project(m_centroid+m_offset, mvmatrix, projmatrix, viewport);
+```
 
 ![03](images/03.gif)
 
 * Mutual occlusion based using depth sort and bounding boxes
 
+```
 	bool depthSort(const glmFeatureLabelPointRef &_A, const glmFeatureLabelPointRef &_B){
 		return _A->getAnchorPoint().z < _B->getAnchorPoint().z;
 	}
@@ -140,11 +149,14 @@ float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),g
 			}
 		}
 	}
- 
+```
+
+
 ![04](images/04.gif)
 
 * Occlude line labels with bounding box
 
+```
 	double rot = _anchorLine.getAngleAt(_offset);
 	glmRectangle boundingBox = glmPolyline(m_label,angle).getBoundingBox();
 	boundingBox.translate(_anchorLine.getPositionAt(_offset+m_label.width*0.5));
@@ -158,7 +170,8 @@ float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),g
 			}
 		}
 	}
- 
+```
+
 ![06](images/06.gif)
 
 * Street level point of view
