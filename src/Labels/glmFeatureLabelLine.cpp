@@ -180,7 +180,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
                 float potentialSeed = offset + seed ;
                 if( potentialSeed-lastSeed > _minDistance ){
                     lastSeed = potentialSeed;
-                    _anchorLine.marks.push_back(lastSeed+m_label.width*0.5);
+                    _anchorLine.marks.push_back(lastSeed);
                     seed += m_label.width+margin;
                 }
             }
@@ -193,7 +193,7 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
             float potentialSeed = offset + margin ;
             if( potentialSeed-lastSeed > _minDistance){
                 lastSeed = potentialSeed;
-                _anchorLine.marks.push_back(lastSeed+m_label.width*0.5);
+                _anchorLine.marks.push_back(lastSeed);
             }
         }
     }
@@ -201,15 +201,9 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, floa
 
 void glmFeatureLabelLine::draw2D(){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
-        float angle = 1.0;
         if(m_cameraPos!=0 && bVisible){
-            float angle = powf( CLAMP( glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),
-                                                glm::vec3(0.,0.,1.))
-                                      ,0.01
-                                      ,1.0)
-                               ,0.5);
-            
-            m_alpha = lerpValue(m_alpha,angle,0.1);
+            float angle = glm::dot(glm::normalize( *m_cameraPos - shapes[0].getCentroid()),glm::vec3(0.,0.,1.));
+            m_alpha = lerpValue(m_alpha,powf( CLAMP(angle,0.01,1.0), 0.6 ),0.1);
         } else {
             m_alpha = lerpValue(m_alpha,0.0, 0.1);
         }
@@ -245,7 +239,6 @@ void glmFeatureLabelLine::drawDebug(){
             } else {
                 glLineWidth(1);
                 drawCross(it[i]);
-//                drawArrow(it[i],it.getPolars()[i-1].a);
                 
                 //  Print distances
                 //
@@ -273,7 +266,7 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
         glm::vec3 diff = _anchorLine[0]-_anchorLine[_anchorLine.size()-1];
         angle = atan2f(-diff.y, diff.x);
         
-        glm::vec3 src = _anchorLine.getPositionAt(_offset-m_label.width*0.5);
+        glm::vec3 src = _anchorLine.getPositionAt(_offset);
         
         if(screen.inside(src)){
             double rot = _anchorLine.getAngleAt(_offset);
@@ -309,11 +302,8 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
                     glTranslated(-m_label.width, 0, 0);
                 }
                 
-                float scale = 1.0;
-                glScaled(scale, scale, 1.0);
                 glTranslatef(0., -m_label.height*0.5,0.);
                 m_font->drawString( m_text, m_alpha );
-                
                 glPopMatrix();
             }
         }
