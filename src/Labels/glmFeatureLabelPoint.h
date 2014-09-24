@@ -41,7 +41,7 @@ protected:
     
     glm::vec3   m_offset;
     glm::vec3   m_anchorPoint;
-    glm::vec3   m_centroid;
+    glm::vec3   m_centroid, m_projectedCentroid;
     
     double      m_angle;
     float       m_margin;

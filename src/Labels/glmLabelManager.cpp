@@ -211,20 +211,18 @@ void glmLabelManager::draw2D(){
     
     glColor4f(1.,1.,1.,1.);
     
-    for (auto &it : pointLabels) {
-        it->draw2D();
-        
-        if(bDebugPoints){
-            it->drawDebug();
-        }
-    }
-    
     for (auto &it : lineLabels) {
-        it->draw2D();
-        
         if(bDebugLines){
             it->drawDebug();
         }
+        it->draw2D();
+    }
+    
+    for (auto &it : pointLabels) {
+        if(bDebugPoints){
+            it->drawDebug();
+        }
+        it->draw2D();
     }
     
     glColor4f(1.,1.,1.,1.);

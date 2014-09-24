@@ -91,7 +91,8 @@ void glmFeatureLabelPoint::updateProjection(){
         }
         
         m_anchorPoint = glm::project(m_centroid+m_offset, mvmatrix, projmatrix, viewport);
-    
+        m_projectedCentroid = glm::project(m_centroid, mvmatrix, projmatrix, viewport);
+        
         m_label.x = m_anchorPoint.x + m_margin * cos(m_angle);
         m_label.y = m_anchorPoint.y + m_margin * sin(-m_angle);
         
@@ -147,6 +148,20 @@ void glmFeatureLabelPoint::updateCached(){
 }
 
 void glmFeatureLabelPoint::draw2D(){
+    
+    //  2D ancher line
+    //
+//    float angle = 0;
+//    float length = 0;
+//    
+//    if(m_cameraPos!=0 ){
+//        glm::vec3 dist = *m_cameraPos - m_centroid;
+//        length = glm::distance(*m_cameraPos, m_centroid)*0.2;
+//        angle = (1.-glm::dot( glm::normalize( dist ), glm::vec3(0.,0.,1.)));
+//    }
+//    
+//    m_offset.z = lerpValue(m_offset.z,angle*length,0.1);
+    
     if(m_font != NULL){
         if(m_bChanged){
             updateCached();
@@ -158,7 +173,9 @@ void glmFeatureLabelPoint::draw2D(){
             m_alpha = lerpValue(m_alpha,0.,0.1);
         }
         
-        if(m_alpha > 0.0){
+        if(m_alpha > 0.0 && m_projectedCentroid.z > 0 && m_anchorPoint.z > 0){
+            glColor4f(m_font->colorFront.x,m_font->colorFront.y,m_font->colorFront.z,m_alpha);
+//            drawStippleLine(m_projectedCentroid, m_anchorPoint, 0x1111);
             m_font->drawString(m_text, m_label.getBottomLeft(), m_alpha);
         }
     }
@@ -205,11 +222,11 @@ void glmFeatureLabelPoint::drawDebug(){
     drawCross(m_anchorPoint,3.0);
     
     if(!bVisible){
-        glColor4f(m_font->colorFront.r, m_font->colorFront.g, m_font->colorFront.g,0.2);
-        m_label.drawCorners();
+//        glColor4f(m_font->colorFront.r, m_font->colorFront.g, m_font->colorFront.g,0.2);
+//        m_label.drawCorners();
     } else {
         glColor4f(m_font->colorFront.r, m_font->colorFront.g, m_font->colorFront.g,1.);
-        getLabel(50).drawCorners();
+        getLabel(25).drawCorners();
     }
 }
 
