@@ -52,7 +52,8 @@ public:
     
     bool    bDebugLines;
     bool    bDebugPoints;
-    bool    bDebugVectorField;
+    bool    bDebugGrid;
+    bool    bDebugField;
     
 private:
     

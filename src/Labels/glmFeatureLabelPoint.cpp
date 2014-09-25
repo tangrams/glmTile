@@ -80,7 +80,7 @@ void glmFeatureLabelPoint::updateProjection(){
         m_anchorLines.clear();
         glmPolyline allPoints;
         for (auto &it: shapes) {
-            glmSmartLine line;
+            glmAnchorLine line;
             for (int i = 0; i < it.size(); i++) {
                 glm::vec3 v = glm::project(it[i], mvmatrix, projmatrix, viewport);
                 if( v.z >= 0.0 && v.z <= 1.0){

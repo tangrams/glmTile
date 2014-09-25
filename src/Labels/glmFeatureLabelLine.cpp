@@ -75,19 +75,19 @@ void glmFeatureLabelLine::updateProjection(){
         //  Project the road into 2D screen position
         //
         for (auto &iShape: shapes){
-            glmSmartLine smartline;
+            glmAnchorLine line;
             for (int i = 0; i < iShape.size(); i++) {
                 glm::vec3 v = glm::project(iShape[i], mvmatrix, projmatrix, viewport);
                 if( v.z >= 0.0 && v.z <= 1.0){
-                    smartline.add(v);
+                    line.add(v);
                 }
             }
             
-            if(smartline.size()>1
-               && smartline.getLength() > 0.0
-               && m_label.width < smartline.getLength()){
-                smartline.originalCentroid = iShape.getCentroid();
-                m_anchorLines.push_back(smartline);
+            if(line.size()>1
+               && line.getLength() > 0.0
+               && m_label.width < line.getLength()){
+                line.originalCentroid = iShape.getCentroid();
+                m_anchorLines.push_back(line);
             }
         }
         
@@ -120,7 +120,7 @@ void glmFeatureLabelLine::updateProjection(){
     }
 };
 
-void glmFeatureLabelLine::seedAnchorAt(glmSmartLine &_anchorLine, float _pct ){
+void glmFeatureLabelLine::seedAnchorAt(glmAnchorLine &_anchorLine, float _pct ){
     float totalLength = _anchorLine.getLength();
     
     float offsetPct = _pct;
@@ -137,7 +137,7 @@ void glmFeatureLabelLine::seedAnchorAt(glmSmartLine &_anchorLine, float _pct ){
     _anchorLine.marks.push_back(offset);
 }
 
-void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance){
+void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
     float segmentLength = _anchorLine.getLength();
     
     //  How many times?
@@ -156,7 +156,7 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmSmartLine &_anchorLine, float _min
     }
 }
 
-void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance){
+void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
     
     float lastSeed = 0.0;
     for (int i = 0; i < _anchorLine.size()-1; i++) {
@@ -254,7 +254,7 @@ void glmFeatureLabelLine::drawDebug(){
     }
 }
 
-void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
+void glmFeatureLabelLine::drawAllTextAtOnce(const glmAnchorLine &_anchorLine){
     for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
@@ -311,12 +311,12 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmSmartLine &_anchorLine){
     }
 }
 
-void glmFeatureLabelLine::drawWordByWord(const glmSmartLine &_anchorLine){
+void glmFeatureLabelLine::drawWordByWord(const glmAnchorLine &_anchorLine){
     //  TODO:
     //
 }
 
-void glmFeatureLabelLine::drawLetterByLetter(const glmSmartLine &_anchorLine){
+void glmFeatureLabelLine::drawLetterByLetter(const glmAnchorLine &_anchorLine){
     for (auto _offset : _anchorLine.marks){
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);

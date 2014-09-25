@@ -10,7 +10,7 @@
 #include "glmFeatureLabel.h"
 
 #include "glmPolyline.h"
-#include "glmSmartLine.h"
+#include "glmAnchorLine.h"
 
 #include "glmFeatureLabelPoint.h"
 
@@ -33,13 +33,13 @@ public:
 protected:
     void    updateCached();
 
-    void    seedAnchorAt(glmSmartLine &_anchorLine, float _pct);
-    void    seedAnchorsEvery(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
-    void    seedAnchorOnSegmentsAt(glmSmartLine &_anchorLine, float _minDistance, float _maxDistance);
+    void    seedAnchorAt(glmAnchorLine &_anchorLine, float _pct);
+    void    seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
+    void    seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
     
-    void    drawAllTextAtOnce(const glmSmartLine &_anchorLine);
-    void    drawWordByWord(const glmSmartLine &_anchorLine);
-    void    drawLetterByLetter(const glmSmartLine &_anchorLine);
+    void    drawAllTextAtOnce(const glmAnchorLine &_anchorLine);
+    void    drawWordByWord(const glmAnchorLine &_anchorLine);
+    void    drawLetterByLetter(const glmAnchorLine &_anchorLine);
     
     //  Text cached data
     std::vector<float> m_wordsWidth;

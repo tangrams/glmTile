@@ -9,7 +9,7 @@
 
 #include "glmFeature.h"
 #include "glmFont.h"
-#include "glmSmartLine.h"
+#include "glmAnchorLine.h"
 #include "glmRectangle.h"
 
 class glmFeatureLabel : public glmFeature{
@@ -35,8 +35,8 @@ public:
 protected:
     virtual void updateCached() = 0;
     
-    std::vector<glmSmartLine> m_anchorLines;    // Use to mount the text
-    glmRectangle m_label;                       // Containg the text information
+    std::vector<glmAnchorLine> m_anchorLines;    // Use to mount the text
+    glmRectangle m_label;                        // Containg the text information
     
     std::string m_text;
     glmFontRef  m_font;

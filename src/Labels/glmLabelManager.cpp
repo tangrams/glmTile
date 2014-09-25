@@ -145,7 +145,7 @@ void glmLabelManager::updateProjection(){
         
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-        if(m_field.set(viewport[2], viewport[3], 150)){
+        if(m_field.set(viewport[2], viewport[3], 100)){
             m_field.addRepelForce(glm::vec3(viewport[2]*0.5,viewport[3]*0.5,0.0), viewport[2], 10.0);
             m_field.addRepelBorders(20);
         }
@@ -229,10 +229,16 @@ void glmLabelManager::draw2D(){
         it->draw2D();
     }
     
-    if(bDebugVectorField){
+    if(bDebugGrid){
         glLineWidth(0.01);
         glColor4f(m_font->colorFront.r,m_font->colorFront.g,m_font->colorFront.b,0.3);
-        m_field.draw();
+        m_field.drawGrid();
+    }
+    
+    if(bDebugField){
+        glLineWidth(0.01);
+        glColor4f(m_font->colorFront.r,m_font->colorFront.g,m_font->colorFront.b,0.8);
+        m_field.drawForces();
     }
     
     glColor4f(1.,1.,1.,1.);
