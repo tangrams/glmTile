@@ -28,6 +28,7 @@ void glmFeatureLabel::setFont(glmFontRef &_fontRef){
 
 void glmFeatureLabel::setText(const std::string &_text){
     m_text = _text;
+    stringPurifier(m_text);
     m_bChanged = true;
 }
 

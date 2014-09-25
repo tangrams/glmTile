@@ -13,6 +13,7 @@
 #include "glmTile.h"
 #include "glmFeatureLabelLine.h"
 #include "glmFeatureLabelPoint.h"
+#include "glmVectorField.h"
 
 class glmLabelManager {
 public:
@@ -51,10 +52,12 @@ public:
     
     bool    bDebugLines;
     bool    bDebugPoints;
+    bool    bDebugVectorField;
     
 private:
     
     glmFontRef  m_font;
+    glmVectorField m_field;
     
     glm::vec3   m_cameraPos;
     

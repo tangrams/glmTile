@@ -143,6 +143,10 @@ void glmLabelManager::updateProjection(){
     
     if(m_bProjectionChanged){
         
+        glm::ivec4 viewport;
+        glGetIntegerv(GL_VIEWPORT, &viewport[0]);
+        m_field.set(viewport[2], viewport[3], 150);
+        
         if(bPoints){
             for (auto &it : pointLabels) {
                 it->updateProjection();
@@ -189,10 +193,7 @@ void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _hei
         if (it->bVisible) {
             glm::vec3 pos = it->getAnchorPoint();
             
-            if(pos.x>0
-               &&pos.x<_width
-               &&pos.y>0
-               &&pos.y<_height){
+            if(pos.x>0 && pos.x<_width && pos.y>0 && pos.y<_height){
                 
                 int index = ((int)pos.y) * _width + (int)pos.x;
                 float depth = _depthBuffer[ index*3 ];
@@ -223,6 +224,12 @@ void glmLabelManager::draw2D(){
             it->drawDebug();
         }
         it->draw2D();
+    }
+    
+    if(bDebugVectorField){
+        glLineWidth(0.01);
+        glColor4f(m_font->colorFront.r,m_font->colorFront.g,m_font->colorFront.b,0.3);
+        m_field.draw();
     }
     
     glColor4f(1.,1.,1.,1.);
