@@ -145,7 +145,10 @@ void glmLabelManager::updateProjection(){
         
         glm::ivec4 viewport;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-        m_field.set(viewport[2], viewport[3], 150);
+        if(m_field.set(viewport[2], viewport[3], 150)){
+            m_field.addRepelForce(glm::vec3(viewport[2]*0.5,viewport[3]*0.5,0.0), viewport[2], 10.0);
+            m_field.addRepelBorders(20);
+        }
         
         if(bPoints){
             for (auto &it : pointLabels) {
