@@ -22,21 +22,19 @@ public:
     virtual ~glmFeatureLabelLine();
     
     void    update();
+    void    seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
+    void    seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
+    
     void    draw2D();
-    void    draw3D();
+    void    drawTextOn(const glmAnchorLine &_anchorLine);
     void    drawDebug();
 
     std::vector<glmFeatureLabelPointRef> *pointLabels;
     
-//protected:
+protected:
     void    updateCached();
 
-    void    seedAnchorAt(glmAnchorLine &_anchorLine, float _pct);
-    void    seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
-    void    seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
-    
     void    drawAllTextAtOnce(const glmAnchorLine &_anchorLine);
-    void    drawWordByWord(const glmAnchorLine &_anchorLine);
     void    drawLetterByLetter(const glmAnchorLine &_anchorLine);
     
     //  Text cached data

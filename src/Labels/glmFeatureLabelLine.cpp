@@ -19,69 +19,6 @@ glmFeatureLabelLine::~glmFeatureLabelLine(){
     
 }
 
-void glmFeatureLabelLine::updateCached(){
-    if(m_font!=NULL&&m_text!="NONE"){
-        
-        m_lettersWidth.clear();
-        m_wordsWidth.clear();
-        
-        std::string word = "";
-        float wordWidth = 0.0f;
-        
-        for(int i = 0; i < m_text.size(); i++){
-            float letterWidth = m_font->stringWidth( std::string(1,m_text[i]) );
-            
-            if( m_text[i] == ' '){
-                m_lettersWidth.push_back(letterWidth);
-                m_wordsWidth.push_back(wordWidth);
-                wordWidth = 0.;
-                word = "";
-            } else {
-                m_lettersWidth.push_back(letterWidth);
-                wordWidth += letterWidth;
-                word += &m_text[i];
-            }
-        }
-        
-        m_label = m_font->getStringBoundingBox(m_text);
-        m_bChanged = false;
-    } else {
-        bVisible = false;
-    }
-}
-
-void glmFeatureLabelLine::update(){
-    if(m_font!=NULL&&m_text!="NONE"){
-        
-    } else {
-        bVisible = false;
-    }
-};
-
-void glmFeatureLabelLine::seedAnchorAt(glmAnchorLine &_anchorLine, float _pct ){
-    
-    //  Update Fonts/Text cached values if something change
-    //
-    if(m_bChanged){
-        updateCached();
-    }
-    
-    float totalLength = _anchorLine.getLength();
-    
-    float offsetPct = _pct;
-    while (totalLength*offsetPct - m_label.width*offsetPct + m_label.width > totalLength) {
-        offsetPct -= 0.01;
-    }
-    
-    float offset = totalLength*offsetPct-m_label.width*_pct;
-    if(offset<0.0|| offset > totalLength){
-        return;
-    }
-    
-    //  Add single position to mark
-    _anchorLine.marks.push_back(offset);
-}
-
 void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
     
     //  Update Fonts/Text cached values if something change
@@ -157,6 +94,38 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, flo
     }
 }
 
+void glmFeatureLabelLine::updateCached(){
+    if(m_font!=NULL&&m_text!="NONE"){
+        
+        m_lettersWidth.clear();
+        m_wordsWidth.clear();
+        
+        std::string word = "";
+        float wordWidth = 0.0f;
+        
+        for(int i = 0; i < m_text.size(); i++){
+            float letterWidth = m_font->stringWidth( std::string(1,m_text[i]) );
+            
+            if( m_text[i] == ' '){
+                m_lettersWidth.push_back(letterWidth);
+                m_wordsWidth.push_back(wordWidth);
+                wordWidth = 0.;
+                word = "";
+            } else {
+                m_lettersWidth.push_back(letterWidth);
+                wordWidth += letterWidth;
+                word += &m_text[i];
+            }
+        }
+        
+        m_label = m_font->getStringBoundingBox(m_text);
+        m_bChanged = false;
+    } else {
+        bVisible = false;
+    }
+}
+
+
 void glmFeatureLabelLine::draw2D(){
     if(m_font!=NULL&&m_text!="NONE"&&bVisible){
         if(m_cameraPos!=0 && bVisible){
@@ -168,11 +137,7 @@ void glmFeatureLabelLine::draw2D(){
         
         if(m_alpha > 0.1){
             for (auto &it: m_anchorLines) {
-                if(it.bLetterByLetter){
-                    drawLetterByLetter(it);
-                } else {
-                    drawAllTextAtOnce(it);
-                }
+                drawTextOn(it);
             }
         }
         
@@ -209,6 +174,14 @@ void glmFeatureLabelLine::drawDebug(){
 //                glPopMatrix();
             }
         }
+    }
+}
+
+void glmFeatureLabelLine::drawTextOn(const glmAnchorLine &_anchorLine){
+    if(_anchorLine.bLetterByLetter){
+        drawLetterByLetter(_anchorLine);
+    } else {
+        drawAllTextAtOnce(_anchorLine);
     }
 }
 
@@ -267,11 +240,6 @@ void glmFeatureLabelLine::drawAllTextAtOnce(const glmAnchorLine &_anchorLine){
         }
         
     }
-}
-
-void glmFeatureLabelLine::drawWordByWord(const glmAnchorLine &_anchorLine){
-    //  TODO:
-    //
 }
 
 void glmFeatureLabelLine::drawLetterByLetter(const glmAnchorLine &_anchorLine){
@@ -337,8 +305,4 @@ void glmFeatureLabelLine::drawLetterByLetter(const glmAnchorLine &_anchorLine){
             }
         }
     }
-}
-
-void glmFeatureLabelLine::draw3D(){
-    
 }

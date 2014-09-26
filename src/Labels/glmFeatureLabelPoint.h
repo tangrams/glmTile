@@ -34,17 +34,18 @@ public:
 
     void    drawDebug();
     
-//protected:
+    glm::vec3   m_offset;
+    glm::vec3   m_centroid;
+    glm::vec3   m_anchorPoint;
+    glm::vec3   m_projectedCentroid;
+    
+protected:
     void    updateCached();
     
-    glmMesh     m_line;
+    glmMesh m_line;
     
-    glm::vec3   m_offset;
-    glm::vec3   m_anchorPoint;
-    glm::vec3   m_centroid, m_projectedCentroid;
-    
-    double      m_angle;
-    float       m_margin;
+    double  m_angle;
+    float   m_margin;
 };
 
 typedef std::tr1::shared_ptr<glmFeatureLabelPoint> glmFeatureLabelPointRef;

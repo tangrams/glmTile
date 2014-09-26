@@ -140,28 +140,37 @@ void glmLabelManager::updateCameraPosition( const glm::vec3 &_pos ){
     }
 }
 
-void glmLabelManager::forceProjectionUpdate(){
-    m_bProjectionChanged = true;
-}
-
 void glmLabelManager::updateProjection(){
     
-    if(m_bProjectionChanged || m_bChange){
+    if(m_bFontChanged){
+        updateFont();
+    }
+    
+    //  Viewport change?
+    //
+    glm::ivec4 viewport;
+    glGetIntegerv(GL_VIEWPORT, &viewport[0]);
+    if(m_viewport != viewport){
+        m_viewport = viewport;
         
-        glm::ivec4 viewport;
+        m_field.set(m_viewport[2], m_viewport[3], 100);
+        m_field.addRepelForce(glm::vec3(viewport[2]*0.5,viewport[3]*0.5,0.0), viewport[2], 10.0);
+        m_field.addRepelBorders(20);
+        
+        m_bProjectionChanged = true;
+    }
+    
+    //  Projection Change? New Labels?
+    //
+    if(m_bProjectionChanged || m_bChange ){
+        
+        //  Get transformation matrixes
+        //
         glm::mat4x4 mvmatrix, projmatrix;
-        glGetIntegerv(GL_VIEWPORT, &viewport[0]);
         glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
         glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
-        
-        //  VECTOR FIELD
-        //
-        if(m_field.set(viewport[2], viewport[3], 100)){
-            m_field.addRepelForce(glm::vec3(viewport[2]*0.5,viewport[3]*0.5,0.0), viewport[2], 10.0);
-            m_field.addRepelBorders(20);
-        }
-        
-        //  POINTS
+
+        //  UPDATE POINTS
         //
         if(bPoints){
             
@@ -244,21 +253,24 @@ void glmLabelManager::updateProjection(){
                 
                 if (it->bVisible) {
                     
+                    //  Seed the positions for line labels
+                    //
                     for (auto &lines: it->m_anchorLines) {
                         
                         //  Place the anchor points for the text labels
                         //
+                        
+                        //  1.  First try to place all the text inside segments
+                        //      It will repeat that for each segment that have enought space.
+                        //      This works great for blocks
                         it->seedAnchorOnSegmentsAt(lines,minDistance,maxDistance);
                         
+                        //  2.  If the previus step fail, place as much labels as it can
+                        //      This works better on rivers non-streight roads
                         if (lines.marks.size() == 0) {
                             it->seedAnchorsEvery(lines,minDistance,maxDistance);
                             lines.bLetterByLetter  = true;
                         }
-                        
-//                        if (lines.marks.size() == 0) {
-//                            it->seedAnchorAt(lines, 0.5);
-//                            lines.bLetterByLetter = true;
-//                        }
                     }
                 }
                 

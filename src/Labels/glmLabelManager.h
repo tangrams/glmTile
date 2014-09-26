@@ -34,11 +34,9 @@ public:
     void mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child );
     void mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child);
     
-    void forceProjectionUpdate();
-    void updateCameraPosition( const glm::vec3 &_pos );
-    
     void updateFont();
     void updateProjection();
+    void updateCameraPosition( const glm::vec3 &_pos );
     void updateOcclusions(float *_depthBuffer, int _width, int _height);
     
     void draw2D();
@@ -64,6 +62,7 @@ private:
     glmFontRef  m_font;
     glmVectorField m_field;
     
+    glm::ivec4  m_viewport;
     glm::vec3   m_cameraPos;
     
     bool    m_bFontChanged;

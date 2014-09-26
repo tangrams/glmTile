@@ -9,12 +9,15 @@
 #include "glmFeatureLabel.h"
 
 glmFeatureLabel::glmFeatureLabel(): m_text("NONE"), m_alpha(0.0), m_cameraPos(NULL), bVisible(false), m_bChanged(true) {
+    
 }
 
 glmFeatureLabel::glmFeatureLabel(const std::string &_text):m_text(_text), m_alpha(0.0), m_cameraPos(NULL), bVisible(false), m_bChanged(true){
+    
 }
 
 glmFeatureLabel::~glmFeatureLabel(){
+    
 };
 
 std::string glmFeatureLabel::getText(){
