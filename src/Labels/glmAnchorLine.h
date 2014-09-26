@@ -8,18 +8,14 @@
 
 #pragma once
 
-#include "glmSmartLine.h"
+#include "glmFastPolyline.h"
 
-class glmAnchorLine : public glmSmartLine {
+class glmAnchorLine : public glmFastPolyline {
 public:
     
     glmAnchorLine();
-    glmAnchorLine(const glmPolyline &_poly);
-    glmAnchorLine(const std::vector<glm::vec3> &_points);
     
-    virtual ~glmAnchorLine();
-    
-    void        clear();
+    void    clear();
     
     std::vector<float>  marks;
     glm::vec3   originalCentroid;
