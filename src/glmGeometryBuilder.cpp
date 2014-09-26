@@ -530,7 +530,6 @@ void glmGeometryBuilder::polygonJson2Mesh(Json::Value &polygonJson, glmMesh &_me
         // Extrude polygon based on height
         if (_height != _minHeight){
             
-            glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
             glm::vec3 tan, nor;
             
             for (int i = 0; i < ringCoords.size() - 1; i++) {
@@ -541,7 +540,8 @@ void glmGeometryBuilder::polygonJson2Mesh(Json::Value &polygonJson, glmMesh &_me
                 glm::vec3 ip1 = ringCoords[i+1];
                 
                 tan = ringCoords[i+1] - ringCoords[i];
-                nor = glm::cross(up, tan);
+                nor = glm::cross(UP_NORMAL, tan);
+                nor = nor;
                 
                 _mesh.addTexCoord(glm::vec2(1.,0.));
                 _mesh.addVertex(ip0);

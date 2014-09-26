@@ -26,7 +26,7 @@ public:
     void    seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
     
     void    draw2D();
-    void    drawTextOn(const glmAnchorLine &_anchorLine);
+    void    drawTextOn(glmAnchorLine &_anchorLine);
     void    drawDebug();
 
     std::vector<glmFeatureLabelPointRef> *pointLabels;
@@ -34,8 +34,8 @@ public:
 protected:
     void    updateCached();
 
-    void    drawAllTextAtOnce(const glmAnchorLine &_anchorLine);
-    void    drawLetterByLetter(const glmAnchorLine &_anchorLine);
+    void    drawAllTextAtOnce( glmAnchorLine &_anchorLine);
+    void    drawLetterByLetter( glmAnchorLine &_anchorLine);
     
     //  Text cached data
     std::vector<float> m_wordsWidth;
