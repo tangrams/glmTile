@@ -21,16 +21,14 @@ public:
     glmFeatureLabelLine(const std::string &_text);
     virtual ~glmFeatureLabelLine();
     
-    void    updateProjection();
+    void    update();
     void    draw2D();
     void    draw3D();
     void    drawDebug();
-    
-    float   maxDistance;
-    
+
     std::vector<glmFeatureLabelPointRef> *pointLabels;
     
-protected:
+//protected:
     void    updateCached();
 
     void    seedAnchorAt(glmAnchorLine &_anchorLine, float _pct);

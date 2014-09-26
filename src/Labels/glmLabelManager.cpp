@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): m_bFontChanged(true), bLines(true), bPoints(true), bDebugLines(false), bDebugPoints(false) {
+glmLabelManager::glmLabelManager(): minDistance(50), maxDistance(500), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -38,12 +38,9 @@ void glmLabelManager::addLineLabel( glmFeatureLabelLineRef &_lineLabel ){
     _lineLabel->pointLabels = &pointLabels;
     
     lineLabels.push_back(_lineLabel);
+    m_bChange = true;
     
     //  TODO: Check duplicates street names
-}
-
-void glmLabelManager::mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child ){
-    
 }
 
 void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
@@ -67,6 +64,12 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
     if(!isPrev){
         pointLabels.push_back(_pointLabel);
     }
+    
+    m_bChange = true;
+}
+
+void glmLabelManager::mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child ){
+    
 }
 
 void glmLabelManager::mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child){
@@ -108,6 +111,8 @@ bool glmLabelManager::deleteLabel(const std::string &_idString){
             break;
         }
     }
+    
+    m_bChange = true;
 }
 
 void glmLabelManager::updateFont(){
@@ -141,26 +146,60 @@ void glmLabelManager::forceProjectionUpdate(){
 
 void glmLabelManager::updateProjection(){
     
-    if(m_bProjectionChanged){
+    if(m_bProjectionChanged || m_bChange){
         
         glm::ivec4 viewport;
+        glm::mat4x4 mvmatrix, projmatrix;
         glGetIntegerv(GL_VIEWPORT, &viewport[0]);
+        glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
+        glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
+        
+        //  VECTOR FIELD
+        //
         if(m_field.set(viewport[2], viewport[3], 100)){
             m_field.addRepelForce(glm::vec3(viewport[2]*0.5,viewport[3]*0.5,0.0), viewport[2], 10.0);
             m_field.addRepelBorders(20);
         }
         
+        //  POINTS
+        //
         if(bPoints){
+            
+            //  Update Projection
+            //
             for (auto &it : pointLabels) {
-                it->updateProjection();
+
+                it->m_anchorLines.clear();
+                if(bUpdateSegments){
+                    glmPolyline allPoints;
+                    for (auto &shape: it->shapes) {
+                        glmAnchorLine line;
+                        for (int i = 0; i < shape.size(); i++) {
+                            glm::vec3 v = glm::project(shape[i], mvmatrix, projmatrix, viewport);
+                            if( v.z >= 0.0 && v.z <= 1.0){
+                                line.add(v);
+                            }
+                        }
+                        it->m_anchorLines.push_back(line);
+                    }
+                }
+                
+                it->m_anchorPoint = glm::project(it->m_centroid+it->m_offset, mvmatrix, projmatrix, viewport);
+                it->m_projectedCentroid = glm::project(it->m_centroid, mvmatrix, projmatrix, viewport);
+                
+                it->update();
             }
             
+            //  Depth Sort
+            //
             std::sort(pointLabels.begin(),pointLabels.end(), depthSort);
             
+            //  Check for oclussions
+            //
             for (int i = 0; i < pointLabels.size(); i++) {
                 if(pointLabels[i]->bVisible){
                     for (int j = i-1; j >= 0 ; j--) {
-                        if (pointLabels[i]->isOver( pointLabels[j].get() ) ){
+                        if (pointLabels[i]->isOver( pointLabels[j].get(), minDistance ) ){
                             pointLabels[i]->bVisible = false;
                             break;
                         }
@@ -173,12 +212,56 @@ void glmLabelManager::updateProjection(){
             }
         }
         
+        //  LINES
+        //
         if(bLines){
             for (auto &it : lineLabels) {
-                if(m_bFontChanged){
-                    it->setFont(m_font);
+
+                //  Clear Previus computed values
+                //
+                it->m_anchorLines.clear();
+                
+                //  Project the road into 2D screen position
+                //
+                for (auto &iShape: it->shapes){
+                    glmAnchorLine line;
+                    for (int i = 0; i < iShape.size(); i++) {
+                        glm::vec3 v = glm::project(iShape[i], mvmatrix, projmatrix, viewport);
+                        if( v.z >= 0.0 && v.z <= 1.0){
+                            line.add(v);
+                        }
+                    }
+                    
+                    if(line.size()>1 && line.getLength() > 0.0 && it->m_label.width < line.getLength()){
+                        line.originalCentroid = iShape.getCentroid();
+                        it->m_anchorLines.push_back(line);
+                    }
                 }
-                it->updateProjection();
+                
+                //  There is something to show??
+                //
+                it->bVisible = it->m_anchorLines.size() > 0.0;
+                
+                if (it->bVisible) {
+                    
+                    for (auto &lines: it->m_anchorLines) {
+                        
+                        //  Place the anchor points for the text labels
+                        //
+                        it->seedAnchorOnSegmentsAt(lines,minDistance,maxDistance);
+                        
+                        if (lines.marks.size() == 0) {
+                            it->seedAnchorsEvery(lines,minDistance,maxDistance);
+                            lines.bLetterByLetter  = true;
+                        }
+                        
+//                        if (lines.marks.size() == 0) {
+//                            it->seedAnchorAt(lines, 0.5);
+//                            lines.bLetterByLetter = true;
+//                        }
+                    }
+                }
+                
             }
         } else {
             for (auto &it : lineLabels) {
@@ -186,8 +269,8 @@ void glmLabelManager::updateProjection(){
             }
         }
         
-        
         m_bProjectionChanged = false;
+        m_bChange = false;
     }
 }
 

@@ -8,10 +8,10 @@
 
 #include "glmFeatureLabelLine.h"
 
-glmFeatureLabelLine::glmFeatureLabelLine():maxDistance(300){
+glmFeatureLabelLine::glmFeatureLabelLine(){
 }
 
-glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text):maxDistance(500){
+glmFeatureLabelLine::glmFeatureLabelLine(const std::string &_text){
     setText(_text);
 }
 
@@ -50,70 +50,8 @@ void glmFeatureLabelLine::updateCached(){
     }
 }
 
-void glmFeatureLabelLine::updateProjection(){
-    
+void glmFeatureLabelLine::update(){
     if(m_font!=NULL&&m_text!="NONE"){
-        
-        //  Update Fonts/Text cached values if something change
-        //
-        if(m_bChanged){
-            updateCached();
-        }
-        
-        //  Clear Previus computed values
-        //
-        m_anchorLines.clear();
-        
-        //  Get Matrixes
-        //
-        glm::ivec4 viewport;
-        glm::mat4x4 mvmatrix, projmatrix;
-        glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-        glGetFloatv(GL_MODELVIEW_MATRIX, &mvmatrix[0][0]);
-        glGetFloatv(GL_PROJECTION_MATRIX, &projmatrix[0][0]);
-        
-        //  Project the road into 2D screen position
-        //
-        for (auto &iShape: shapes){
-            glmAnchorLine line;
-            for (int i = 0; i < iShape.size(); i++) {
-                glm::vec3 v = glm::project(iShape[i], mvmatrix, projmatrix, viewport);
-                if( v.z >= 0.0 && v.z <= 1.0){
-                    line.add(v);
-                }
-            }
-            
-            if(line.size()>1
-               && line.getLength() > 0.0
-               && m_label.width < line.getLength()){
-                line.originalCentroid = iShape.getCentroid();
-                m_anchorLines.push_back(line);
-            }
-        }
-        
-        //  There is something to show??
-        //
-        bVisible = m_anchorLines.size() > 0.0;
-        
-        if (bVisible) {
-            
-            for (auto &it: m_anchorLines) {
-                
-                //  Place the anchor points for the text labels
-                //
-                seedAnchorOnSegmentsAt(it,minDistance,maxDistance);
-                
-                if (it.marks.size() == 0) {
-                    seedAnchorsEvery(it,minDistance,maxDistance);
-                    it.bLetterByLetter  = true;
-                }
-                
-//                if (it.marks.size() == 0) {
-//                    seedAnchorAt(it, 0.5);
-//                    it.bLetterByLetter = true;
-//                }
-            }
-        }
         
     } else {
         bVisible = false;
@@ -121,6 +59,13 @@ void glmFeatureLabelLine::updateProjection(){
 };
 
 void glmFeatureLabelLine::seedAnchorAt(glmAnchorLine &_anchorLine, float _pct ){
+    
+    //  Update Fonts/Text cached values if something change
+    //
+    if(m_bChanged){
+        updateCached();
+    }
+    
     float totalLength = _anchorLine.getLength();
     
     float offsetPct = _pct;
@@ -138,6 +83,13 @@ void glmFeatureLabelLine::seedAnchorAt(glmAnchorLine &_anchorLine, float _pct ){
 }
 
 void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
+    
+    //  Update Fonts/Text cached values if something change
+    //
+    if(m_bChanged){
+        updateCached();
+    }
+    
     float segmentLength = _anchorLine.getLength();
     
     //  How many times?
@@ -157,6 +109,12 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _mi
 }
 
 void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
+    
+    //  Update Fonts/Text cached values if something change
+    //
+    if(m_bChanged){
+        updateCached();
+    }
     
     float lastSeed = 0.0;
     for (int i = 0; i < _anchorLine.size()-1; i++) {

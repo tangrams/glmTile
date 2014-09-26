@@ -25,16 +25,16 @@ public:
     glmRectangle getLabel( const float &_marign ) const;
     glm::vec3    getAnchorPoint() const;
     
-    bool    isOver(const glmFeatureLabelPoint *_other);
+    bool    isOver(const glmFeatureLabelPoint *_other, float _margin);
     bool    isInside(const glm::vec3 &_point);
     
-    void    updateProjection();
+    void    update();
     void    draw2D();
     void    draw3D();
 
     void    drawDebug();
     
-protected:
+//protected:
     void    updateCached();
     
     glmMesh     m_line;

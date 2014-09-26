@@ -47,8 +47,12 @@ public:
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
     
+    float   minDistance, maxDistance;
+    
     bool    bLines;
     bool    bPoints;
+    
+    bool    bUpdateSegments;
     
     bool    bDebugLines;
     bool    bDebugPoints;
@@ -64,4 +68,5 @@ private:
     
     bool    m_bFontChanged;
     bool    m_bProjectionChanged;
+    bool    m_bChange;
 };

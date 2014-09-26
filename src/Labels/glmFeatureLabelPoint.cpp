@@ -50,11 +50,11 @@ glm::vec3 glmFeatureLabelPoint::getAnchorPoint() const{
     return m_anchorPoint;
 }
 
-bool glmFeatureLabelPoint::isOver(const glmFeatureLabelPoint *_other){
+bool glmFeatureLabelPoint::isOver(const glmFeatureLabelPoint *_other, float _margin){
     if(m_bChanged){
         updateCached();
     }
-    return m_label.intersects(_other->getLabel(minDistance)) || isInside(_other->getAnchorPoint());
+    return m_label.intersects(_other->getLabel(_margin)) || isInside(_other->getAnchorPoint());
 }
 
 bool glmFeatureLabelPoint::isInside(const glm::vec3 &_point){
@@ -64,7 +64,14 @@ bool glmFeatureLabelPoint::isInside(const glm::vec3 &_point){
     return m_label.inside(_point);
 }
 
-void glmFeatureLabelPoint::updateProjection(){
+void glmFeatureLabelPoint::updateCached(){
+    if(m_font!=NULL&&m_text!="NONE"){
+        m_label = m_font->getStringBoundingBox(m_text);
+        m_bChanged = false;
+    }
+}
+
+void glmFeatureLabelPoint::update(){
     
     if(m_font!=NULL&&m_text!="NONE"){
         glm::ivec4 viewport;
@@ -76,22 +83,6 @@ void glmFeatureLabelPoint::updateProjection(){
         if(m_bChanged){
             updateCached();
         }
-        
-        m_anchorLines.clear();
-        glmPolyline allPoints;
-        for (auto &it: shapes) {
-            glmAnchorLine line;
-            for (int i = 0; i < it.size(); i++) {
-                glm::vec3 v = glm::project(it[i], mvmatrix, projmatrix, viewport);
-                if( v.z >= 0.0 && v.z <= 1.0){
-                    line.add(v);
-                }
-            }
-            m_anchorLines.push_back(line);
-        }
-        
-        m_anchorPoint = glm::project(m_centroid+m_offset, mvmatrix, projmatrix, viewport);
-        m_projectedCentroid = glm::project(m_centroid, mvmatrix, projmatrix, viewport);
         
         m_label.x = m_anchorPoint.x + m_margin * cos(m_angle);
         m_label.y = m_anchorPoint.y + m_margin * sin(-m_angle);
@@ -139,13 +130,6 @@ void glmFeatureLabelPoint::updateProjection(){
         bVisible = false;
     }
 };
-
-void glmFeatureLabelPoint::updateCached(){
-    if(m_font!=NULL&&m_text!="NONE"){
-        m_label = m_font->getStringBoundingBox(m_text);
-        m_bChanged = false;
-    }
-}
 
 void glmFeatureLabelPoint::draw2D(){
     

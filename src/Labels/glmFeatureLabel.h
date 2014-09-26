@@ -25,14 +25,13 @@ public:
     
     std::string getText();
     
-    virtual void updateProjection() = 0;
+    virtual void update() = 0;
     virtual void draw2D() = 0;
     virtual void draw3D() = 0;
     
-    float   minDistance;
     bool    bVisible;
     
-protected:
+//protected:
     virtual void updateCached() = 0;
     
     std::vector<glmAnchorLine> m_anchorLines;    // Use to mount the text
