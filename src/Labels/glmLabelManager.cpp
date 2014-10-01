@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): minDistance(50), maxDistance(500), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
+glmLabelManager::glmLabelManager(): minDistance(50), maxDistance(200), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -179,16 +179,7 @@ void glmLabelManager::updateProjection(){
                 //  If we are updating the shapes ( FLOORS ) debug ONLY
                 //
                 if(bUpdateSegments){
-                    for (auto &shape: pointLabel->shapes) {
-                        glmAnchorLine line;
-                        for (int i = 0; i < shape.size(); i++) {
-                            glm::vec3 v = glm::project(shape[i], mvmatrix, projmatrix, viewport);
-                            if( v.z > 0.0 && v.z < 1.0 ){
-                                line.add(v);
-                            }
-                        }
-                        pointLabel->m_anchorLines.push_back(line);
-                    }
+                    pointLabel->updateProjection(mvmatrix, projmatrix, viewport);
                 } else {
                     pointLabel->m_anchorLines.clear();
                 }
@@ -233,13 +224,12 @@ void glmLabelManager::updateProjection(){
                     lineLabel->m_anchorLines.resize( lineLabel->shapes.size() );
                 }
                 
-                
+                //  Project the road into 2D screen position
+                //
                 lineLabel->bVisible = false;
+                lineLabel->updateProjection(mvmatrix, projmatrix, viewport);
+                
                 for (int i = 0; i < lineLabel->m_anchorLines.size(); i++){
-                    
-                    //  Project the road into 2D screen position
-                    //
-                    lineLabel->m_anchorLines[i].project(lineLabel->shapes[i], mvmatrix, projmatrix, viewport);
                     
                     // If visible
                     //
@@ -252,12 +242,12 @@ void glmLabelManager::updateProjection(){
                         //  1.  First try to place all the text inside segments
                         //      It will repeat that for each segment that have enought space.
                         //      This works great for blocks
-                        lineLabel->seedAnchorOnSegmentsEvery( lineLabel->m_anchorLines[i], minDistance);
+                        lineLabel->seedAnchorOnSegmentsEvery( lineLabel->m_anchorLines[i], minDistance, maxDistance);
                         
                         //  2.  If the previus step fail, place as much labels as it can
                         //      This works better on rivers non-streight roads
                         if(lineLabel->m_anchorLines[i].m_nSegmentLabels == 0 ){
-                            lineLabel->seedAnchorsEvery(lineLabel->m_anchorLines[i], minDistance);
+                            lineLabel->seedAnchorsEvery(lineLabel->m_anchorLines[i], minDistance, maxDistance);
                         } else {
                             lineLabel->m_anchorLines[i].clearMarks();
                         }

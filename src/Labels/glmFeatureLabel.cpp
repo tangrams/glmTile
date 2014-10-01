@@ -39,3 +39,12 @@ void glmFeatureLabel::setCameraPos(glm::vec3 *_camPos){
     m_cameraPos = _camPos;
 }
 
+void glmFeatureLabel::updateProjection(const glm::mat4x4 & _mvmatrix, const glm::mat4x4 & _projmatrix, const glm::ivec4 &_viewport){
+    if (m_anchorLines.size() != shapes.size() ){
+        m_anchorLines.resize( shapes.size() );
+    }
+    
+    for (int i = 0; i < shapes.size(); i++) {
+        m_anchorLines[i].project(shapes[i], _mvmatrix, _projmatrix, _viewport);
+    }
+}

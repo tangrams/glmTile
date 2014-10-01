@@ -19,7 +19,7 @@ glmFeatureLabelLine::~glmFeatureLabelLine(){
     
 }
 
-void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance){
+void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
     
     //  Update Fonts/Text cached values if something change
     //
@@ -27,10 +27,10 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _mi
         updateCached();
     }
 
-    _anchorLine.m_nSegmentLabels += _anchorLine.fit(m_label.width+_minDistance, _anchorLine.getLength());
+    _anchorLine.m_nSegmentLabels += _anchorLine.fit(m_label.width+_minDistance, m_label.width+ _maxDistance , _anchorLine.getLength());
 }
 
-void glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance){
+void glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
     //  Update Fonts/Text cached values if something change
     //
     if(m_bChanged){
@@ -39,9 +39,9 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, 
     
     int count = 0;
     for (int i = 0 ; i < _anchorLine.m_segmentsMarks.size()-1; i++ ) {
-        if (_anchorLine.m_segmentsMarks[i].m_bVisible || _anchorLine.m_segmentsMarks[i+1].m_bVisible ) {
+        if ( _anchorLine.m_segmentsMarks[i].m_bVisible || _anchorLine.m_segmentsMarks[i+1].m_bVisible ) {
             
-            count += _anchorLine.m_segmentsMarks[i].fit( m_label.width+_minDistance, _anchorLine.getPolars()[i].r );
+            count += _anchorLine.m_segmentsMarks[i].fit( m_label.width+_minDistance, m_label.width+ _maxDistance , _anchorLine.getPolars()[i].r );
         
         } else if ( _anchorLine.m_segmentsMarks[i].m_marks.size() > 0){
         
@@ -249,12 +249,14 @@ void glmFeatureLabelLine::drawDebug(){
             glDisable(GL_LINE_STIPPLE);
             
             for (int i = 0; i < it.size(); i++) {
-                if(i == 0 ){
-                    glLineWidth(2);
-                    drawCross(it[i],5);
-                } else {
-                    glLineWidth(1);
-                    drawCross(it[i]);
+                if( it.m_segmentsMarks[i].m_bVisible){
+                    if(i == 0 ){
+                        glLineWidth(2);
+                        drawCross(it[i],5);
+                    } else {
+                        glLineWidth(1);
+                        drawCross(it[i]);
+                    }
                 }
             }
             

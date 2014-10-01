@@ -23,6 +23,8 @@ public:
     void    setCameraPos(glm::vec3 *_camPos);
     void    setText(const std::string &_text);
     
+    void    updateProjection(const glm::mat4x4 & _mvmatrix, const glm::mat4x4 & _projmatrix, const glm::ivec4 &_viewport);
+    
     std::string     getText();
     virtual void    draw2D() = 0;
     

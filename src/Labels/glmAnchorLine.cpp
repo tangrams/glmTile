@@ -61,11 +61,15 @@ void AnchorSegment::less(){
     m_marks.erase(m_marks.end()-nTotal,m_marks.end());
 }
 
-int AnchorSegment::fit(float _space, float _at){
+int AnchorSegment::fit(float _min, float _max, float _at){
     
     //  What level should have?
     //  ( The number of labels is exponential to the level in order to make them consistent over several zoom distances, the grow must be exponential )
-    int nLevel = (int)sqrt(_at/_space );
+    int nLevel = (int)sqrt(_at/_max);
+    
+    if (nLevel == 0){
+        nLevel = (int)sqrt(_at/_min);
+    }
     
     if (nLevel>7) {
         nLevel = 4;
@@ -110,9 +114,19 @@ void glmAnchorLine::project( const glmPolyline &_poly, const glm::mat4x4 &_mvmat
     for (int i = 0; i < _poly.size(); i++) {
         
         glm::vec3 v = glm::project(_poly[i], _mvmatrix, _projmatrix, _viewport);
-        bool isVisible = ( v.z > 0.0 && v.z < 1.0 && viewport.inside(v));
-    
+        bool insideViewport = viewport.inside(v);
+        bool isVisible = ( v.z > 0.0 && v.z < 1.0 && insideViewport);
+
         m_points[i] = v;
+        
+        if(!insideViewport){
+            glmRectangle vp = glmRectangle(_viewport);
+            
+            if(i > 0){
+                vp.clip(m_points[i-1], m_points[i]);
+                isVisible = true;
+            } 
+        }
         
         //  With only one visible segment ALL the line is tag as visible
         //

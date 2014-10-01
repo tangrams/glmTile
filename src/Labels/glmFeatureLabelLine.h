@@ -22,8 +22,8 @@ public:
     virtual ~glmFeatureLabelLine();
     
     void    update();
-    void    seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance);
-    void    seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance);
+    void    seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
+    void    seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance);
     
     void    draw2D();
     void    drawTextOn( glmAnchorLine &_anchorLine );

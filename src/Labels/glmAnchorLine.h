@@ -23,7 +23,7 @@ public:
     
     AnchorSegment();
     
-    int     fit(float _space, float _at);
+    int     fit(float _min, float _max, float _at);
     void    more();
     void    less();
     void    clearMarks();
