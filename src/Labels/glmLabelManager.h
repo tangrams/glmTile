@@ -43,7 +43,7 @@ public:
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
     
-    float   minDistance;
+    float   minDistance, maxDistance;
     
     bool    bLines;
     bool    bPoints;

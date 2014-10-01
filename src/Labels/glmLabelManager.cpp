@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): minDistance(200), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
+glmLabelManager::glmLabelManager(): minDistance(50), maxDistance(500), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -172,27 +172,31 @@ void glmLabelManager::updateProjection(){
             
             //  Update Projection
             //
-            for (auto &it : pointLabels) {
+            for (auto &pointLabel : pointLabels) {
 
-                it->m_anchorLines.clear();
+                pointLabel->m_anchorLines.clear();
+                
+                //  If we are updating the shapes ( FLOORS ) debug ONLY
+                //
                 if(bUpdateSegments){
-                    glmPolyline allPoints;
-                    for (auto &shape: it->shapes) {
+                    for (auto &shape: pointLabel->shapes) {
                         glmAnchorLine line;
                         for (int i = 0; i < shape.size(); i++) {
                             glm::vec3 v = glm::project(shape[i], mvmatrix, projmatrix, viewport);
-                            if( v.z >= 0.0 && v.z <= 1.0){
+                            if( v.z > 0.0 && v.z < 1.0 ){
                                 line.add(v);
                             }
                         }
-                        it->m_anchorLines.push_back(line);
+                        pointLabel->m_anchorLines.push_back(line);
                     }
+                } else {
+                    pointLabel->m_anchorLines.clear();
                 }
                 
-                it->m_anchorPoint = glm::project(it->m_centroid+it->m_offset, mvmatrix, projmatrix, viewport);
-                it->m_projectedCentroid = glm::project(it->m_centroid, mvmatrix, projmatrix, viewport);
+                pointLabel->m_anchorPoint = glm::project(pointLabel->m_centroid+pointLabel->m_offset, mvmatrix, projmatrix, viewport);
+                pointLabel->m_projectedCentroid = glm::project(pointLabel->m_centroid, mvmatrix, projmatrix, viewport);
                 
-                it->update();
+                pointLabel->update();
             }
             
             //  Depth Sort
@@ -220,40 +224,47 @@ void glmLabelManager::updateProjection(){
         //  LINES
         //
         if(bLines){
-            for (auto &it : lineLabels) {
+            
+            for (auto &lineLabel : lineLabels) {
 
                 //  Match number of m_anchorLines
                 //
-                if (it->m_anchorLines.size() != it->shapes.size() ){
-                    it->m_anchorLines.resize(it->shapes.size());
+                if (lineLabel->m_anchorLines.size() != lineLabel->shapes.size() ){
+                    lineLabel->m_anchorLines.resize( lineLabel->shapes.size() );
                 }
                 
-                //  Project the road into 2D screen position
-                //
-                it->bVisible = false;
-                for (int i = 0; i < it->m_anchorLines.size(); i++){
-                    
-                    it->m_anchorLines[i].project(it->shapes[i], mvmatrix, projmatrix, viewport);
-                    
-                    //  With only one line visible the line is tag as visible
-                    //
-                    if (it->m_anchorLines[i].m_bVisible){
-                        it->bVisible = true;
-                    }
-                }
                 
-                if (it->bVisible) {
+                lineLabel->bVisible = false;
+                for (int i = 0; i < lineLabel->m_anchorLines.size(); i++){
                     
-                    //  Seed the positions for line labels
+                    //  Project the road into 2D screen position
                     //
-                    for (auto &line: it->m_anchorLines) {
+                    lineLabel->m_anchorLines[i].project(lineLabel->shapes[i], mvmatrix, projmatrix, viewport);
+                    
+                    // If visible
+                    //
+                    if (lineLabel->m_anchorLines[i].m_bVisible){
                         
-                        line.m_nSegmentLabels = it->seedAnchorOnSegmentsEvery(line, 50);
+                        //  Place the anchor points for the text labels
+                        //
+                        lineLabel->m_anchorLines[i].m_nSegmentLabels = 0;
                         
-//                        if(line.m_nSegmentLabels == 0){
-//                            it->seedAnchorsEvery(line, minDistance);
-//                        }
+                        //  1.  First try to place all the text inside segments
+                        //      It will repeat that for each segment that have enought space.
+                        //      This works great for blocks
+                        lineLabel->seedAnchorOnSegmentsEvery( lineLabel->m_anchorLines[i], minDistance);
                         
+                        //  2.  If the previus step fail, place as much labels as it can
+                        //      This works better on rivers non-streight roads
+                        if(lineLabel->m_anchorLines[i].m_nSegmentLabels == 0 ){
+                            lineLabel->seedAnchorsEvery(lineLabel->m_anchorLines[i], minDistance);
+                        } else {
+                            lineLabel->m_anchorLines[i].clearMarks();
+                        }
+                        
+                        //  With only one line visible the makes the all the line visible
+                        //
+                        lineLabel->bVisible = true;
                     }
                 }
                 

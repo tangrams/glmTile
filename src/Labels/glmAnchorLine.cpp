@@ -53,7 +53,7 @@ void AnchorSegment::less(){
     m_nLevel--;
     
     if(m_nLevel == 0){
-        clear();
+        clearMarks();
         return;
     }
     
@@ -83,7 +83,7 @@ int AnchorSegment::fit(float _space, float _at){
     return m_marks.size();
 }
 
-void AnchorSegment::clear(){
+void AnchorSegment::clearMarks(){
     m_marks.clear();
     m_nLevel = 0;
     m_bVisible = false;
@@ -101,7 +101,7 @@ void glmAnchorLine::project( const glmPolyline &_poly, const glm::mat4x4 &_mvmat
     //
     if( m_segmentsMarks.size() != _poly.size() || m_points.size() != _poly.size()){
         m_points.resize(_poly.size());
-        m_segmentsMarks.resize(_poly.size()-1);
+        m_segmentsMarks.resize(_poly.size());
     }
     
     //  Update verteces
@@ -110,20 +110,21 @@ void glmAnchorLine::project( const glmPolyline &_poly, const glm::mat4x4 &_mvmat
     for (int i = 0; i < _poly.size(); i++) {
         
         glm::vec3 v = glm::project(_poly[i], _mvmatrix, _projmatrix, _viewport);
-        bool bVisible = ( v.z >= 0.0 && v.z <= 1.0 && viewport.inside(v));
+        bool isVisible = ( v.z > 0.0 && v.z < 1.0 && viewport.inside(v));
     
         m_points[i] = v;
-        m_segmentsMarks[i].m_bVisible = bVisible;
         
-        //  With only one visible segment the line is tag as visible
+        //  With only one visible segment ALL the line is tag as visible
         //
-        if(bVisible){
+        if(isVisible){
             m_bVisible = true;
-        } else {
-            m_segmentsMarks[i].clear();
         }
+            
+        //  For each segment (last point don't have segment)
+        //
+        m_segmentsMarks[i].m_bVisible = isVisible;
     }
-    
+
     //  Update distances and angles
     //
     updateCache();

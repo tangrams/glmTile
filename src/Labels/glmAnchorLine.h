@@ -26,7 +26,7 @@ public:
     int     fit(float _space, float _at);
     void    more();
     void    less();
-    void    clear();
+    void    clearMarks();
     
     std::vector<AnchorMark> m_marks;
     
