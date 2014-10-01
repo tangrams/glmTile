@@ -19,79 +19,34 @@ glmFeatureLabelLine::~glmFeatureLabelLine(){
     
 }
 
-void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
+int glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _minDistance){
     
     //  Update Fonts/Text cached values if something change
     //
     if(m_bChanged){
         updateCached();
     }
-    
-    float segmentLength = _anchorLine.getLength();
-    
-    //  How many times?
-    int nTimes = segmentLength/(m_label.width+_maxDistance);
-    
-    //  At what distance between each other?
-    float margin = (segmentLength-m_label.width*(float)nTimes)/((float)nTimes+1.0);
-    
-    //  Center the Labels
-    float seed = margin;
-    
-    //  Add anchor points for seeds every _distance
-    for (int i = 0; i < nTimes; i++) {
-        _anchorLine.marks.push_back(AnchorMark(seed/_anchorLine.getLength()));
-        seed += m_label.width+margin;
-    }
+
+    return _anchorLine.fit(m_label.width+_minDistance, _anchorLine.getLength());
 }
 
-void glmFeatureLabelLine::seedAnchorOnSegmentsAt(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
-    
+int glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance){
     //  Update Fonts/Text cached values if something change
     //
     if(m_bChanged){
         updateCached();
     }
     
-    float lastSeed = 0.0;
-    for (int i = 0; i < _anchorLine.size()-1; i++) {
-        float offset = _anchorLine.getDistances()[i];
-        
-        float segmentLength = _anchorLine.getDistances()[i+1]-_anchorLine.getDistances()[i];//_anchorLine.getPolars()[i].r;
-        
-        //  Fits?
-        //
-        if( segmentLength >= (m_label.width+_maxDistance) ){
-
-            //  How many times?
-            int nTimes = segmentLength/(m_label.width+_maxDistance);
-            
-            //  At what distance between each other?
-            float margin = (segmentLength-m_label.width*(float)nTimes)/((float)nTimes+1.0);
-            
-            //  Add anchors points for seeds
-            float seed = margin;
-            for (int i = 0; i < nTimes; i++) {
-                float potentialSeed = offset + seed ;
-                if( potentialSeed-lastSeed > _minDistance ){
-                    lastSeed = potentialSeed;
-                    _anchorLine.marks.push_back(AnchorMark(lastSeed/_anchorLine.getLength()));
-                    seed += m_label.width+margin;
-                }
-            }
-            
-        } else if ( segmentLength >= m_label.width+_minDistance){
-            
-            //  Only one time
-            //
-            float margin = (segmentLength-m_label.width)*0.5;
-            float potentialSeed = offset + margin ;
-            if( potentialSeed-lastSeed > _minDistance){
-                lastSeed = potentialSeed;
-                _anchorLine.marks.push_back(AnchorMark(lastSeed/_anchorLine.getLength()));
-            }
+    int count = 0;
+    for (int i = 0 ; i < _anchorLine.m_segmentsMarks.size(); i++ ) {
+        if (_anchorLine.m_segmentsMarks[i].m_bVisible) {
+            count += _anchorLine.m_segmentsMarks[i].fit( m_label.width+_minDistance, _anchorLine.getPolars()[i].r );
+        } else if ( _anchorLine.m_segmentsMarks[i].m_marks.size() > 0){
+            _anchorLine.m_segmentsMarks[i].clear();
         }
     }
+    
+    return count;
 }
 
 void glmFeatureLabelLine::updateCached(){
@@ -147,6 +102,122 @@ void glmFeatureLabelLine::draw2D(){
     }
 }
 
+void glmFeatureLabelLine::drawTextOn( glmAnchorLine &_anchorLine ){
+    
+    if(_anchorLine.m_nSegmentLabels > 0){
+        
+        //  ALL THE TEXT at once ( for streight lines )
+        //
+        for (int i = 0; i < _anchorLine.size()-1; i++){
+            
+            //  For each populated
+            //
+            if(_anchorLine.m_segmentsMarks[i].m_marks.size() > 0 ){
+                
+                //  Compute offset and rotation
+                //
+                glm::vec3 segmentOffset = _anchorLine[i];
+                glm::vec3 segmentDir = _anchorLine[i+1]-_anchorLine[i];
+                float segmentAngle = _anchorLine.getPolars()[i].a;
+                float segmentDistance = _anchorLine.getPolars()[i].r;
+                
+                for (auto &mark : _anchorLine.m_segmentsMarks[i].m_marks){
+                
+                    glm::vec3 src = segmentOffset + segmentDir*mark.m_pct;
+                    glmRectangle boundingBox = glmPolyline(m_label,segmentAngle).getBoundingBox();
+                    boundingBox.translate( segmentOffset + segmentDir*mark.m_pct  );
+                    
+                    bool bOver = false;
+//                    for (int i = 0; i < pointLabels->size(); i++ ){
+//                        if(pointLabels->at(i)->bVisible){
+//                            if( boundingBox.intersects(pointLabels->at(i)->getLabel(0) ) ){
+//                                bOver = true;
+//                                break;
+//                            }
+//                        }
+//                    }
+                    
+                    if(bVisible){
+                        mark.m_alpha = lerpValue(mark.m_alpha,m_alpha,0.1);
+                    } else {
+                        mark.m_alpha = lerpValue(mark.m_alpha,0.0,0.1);
+                    }
+                    
+                    if(!bOver){
+                        
+                        glPushMatrix();
+                        glTranslated(src.x, src.y, src.z);
+                        
+                        glScalef(1,-1,1);
+                        glRotated(segmentAngle*RAD_TO_DEG, 0, 0, -1);
+                        
+                        if(segmentAngle > HALF_PI && segmentAngle < HALF_PI){
+                            glScaled(-1, -1, 1);
+                        }
+                        
+                        glTranslatef(-m_label.width*0.5, -m_label.height*0.5,0.);
+                        m_font->drawString( m_text, mark.m_alpha );
+                        glPopMatrix();
+                    }
+                    
+                }
+            }
+        }
+        
+    } else {
+        
+        //  LETTER BY LETTER ( for smooth curves )
+        //
+        for (auto &mark : _anchorLine.m_marks){
+            
+            //  Orientation
+            //
+            float startDist = mark.m_pct*_anchorLine.getLength()-m_label.width*0.5;
+            float endDist = mark.m_pct*_anchorLine.getLength()+m_label.width*0.5;
+            
+            glm::vec3 diff = _anchorLine.getPositionAt(endDist)-_anchorLine.getPositionAt(startDist);
+            float angle = atan2f(-diff.y, diff.x);
+            
+            bool bUpsideDown = (angle > HALF_PI && angle < HALF_PI);
+            
+            //  Fade
+            //
+            if(bVisible){
+                mark.m_alpha = lerpValue(mark.m_alpha,m_alpha,0.1);
+            } else {
+                mark.m_alpha = lerpValue(mark.m_alpha,0.0,0.1);
+            }
+            
+            float offset = startDist;
+            for (int i = 0; i < m_text.length(); i++) {
+                
+                glm::vec3 src = _anchorLine.getPositionAt(offset);
+                double rot = _anchorLine.getAngleAt(offset);
+                
+                glPushMatrix();
+                glTranslated(src.x, src.y, src.z);
+                
+                glScalef(1.,-1.,1.);
+                glRotated(rot*RAD_TO_DEG, 0., 0., -1.);
+                
+                int index = i;
+                if(bUpsideDown){
+                    index = (m_text.length()-1)-i;
+                    glScaled(-1., -1., 1.);
+                    glTranslated(-m_lettersWidth[index], 0, 0);
+                }
+                
+                glTranslatef(0., -m_label.height*0.5,0.);
+                m_font->drawString( std::string(1,m_text[index]), mark.m_alpha );
+                
+                glPopMatrix();
+                offset += m_lettersWidth[index];
+            }
+            
+        }
+    }
+}
+
 void glmFeatureLabelLine::drawDebug(){
     glColor4f(m_font->colorFront.x,m_font->colorFront.y,m_font->colorFront.z,m_alpha);
     
@@ -175,148 +246,6 @@ void glmFeatureLabelLine::drawDebug(){
 //                glTranslated(5.,3.,0.);
 //                m_font->drawString( toString( (int)it.getDistances()[i]), m_alpha );
 //                glPopMatrix();
-            }
-        }
-    }
-}
-
-void glmFeatureLabelLine::drawTextOn( glmAnchorLine &_anchorLine){
-    if(_anchorLine.bLetterByLetter){
-        drawLetterByLetter(_anchorLine);
-    } else {
-        drawAllTextAtOnce(_anchorLine);
-    }
-}
-
-void glmFeatureLabelLine::drawAllTextAtOnce( glmAnchorLine &_anchorLine){
-    for (auto &mark : _anchorLine.marks){
-        glm::ivec4 viewport;
-        glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-        glmRectangle screen = glmRectangle(viewport);
-        
-        //  Orientation
-        //
-        float angle = PI;
-        glm::vec3 diff = _anchorLine[0]-_anchorLine[_anchorLine.size()-1];
-        angle = atan2f(-diff.y, diff.x);
-        float offset = mark.m_pct*_anchorLine.getLength();
-        glm::vec3 src = _anchorLine.getPositionAt(offset);
-        
-        if(bVisible){
-            mark.m_alpha = lerpValue(mark.m_alpha,m_alpha,0.1);
-        } else {
-            mark.m_alpha = lerpValue(mark.m_alpha,0.0,0.1);
-        }
-        
-        if(screen.inside(src)){
-            double rot = _anchorLine.getAngleAt(offset);
-            
-            glmRectangle boundingBox = glmPolyline(m_label,angle).getBoundingBox();
-            boundingBox.translate( _anchorLine.getPositionAt( offset + m_label.width*0.5) );
-            
-            // Draw boundign box for debug
-            //
-//            boundingBox.drawCorners();
-            
-            bool bOver = false;
-            
-            for (int i = 0; i < pointLabels->size(); i++ ){
-                if(pointLabels->at(i)->bVisible){
-                    if( boundingBox.intersects(pointLabels->at(i)->getLabel(0) ) ){
-                        bOver = true;
-                        break;
-                    }
-                }
-            }
-            
-            if(!bOver){
-                
-                glPushMatrix();
-                glTranslated(src.x, src.y, src.z);
-                
-                glScalef(1,-1,1);
-                glRotated(rot*RAD_TO_DEG, 0, 0, -1);
-                
-                if(angle < PI*0.5 && angle > -PI*0.5){
-                    glScaled(-1, -1, 1);
-                    glTranslated(-m_label.width, 0, 0);
-                }
-                
-                glTranslatef(0., -m_label.height*0.5,0.);
-                m_font->drawString( m_text, mark.m_alpha );
-                glPopMatrix();
-            }
-        }
-        
-    }
-}
-
-void glmFeatureLabelLine::drawLetterByLetter(glmAnchorLine &_anchorLine){
-    for (auto &mark : _anchorLine.marks){
-        glm::ivec4 viewport;
-        glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-        glmRectangle screen = glmRectangle(viewport);
-        
-        //  Orientation
-        //
-        float angle = PI;
-        glm::vec3 diff = _anchorLine[0]-_anchorLine[_anchorLine.size()-1];
-        angle = atan2f(-diff.y, diff.x);
-        float offset = mark.m_pct*_anchorLine.getLength();
-        
-        if(bVisible){
-            mark.m_alpha = lerpValue(mark.m_alpha,m_alpha,0.1);
-        } else {
-            mark.m_alpha = lerpValue(mark.m_alpha,0.0,0.1);
-        }
-        
-        if(angle < PI*0.5 && angle > -PI*0.5){
-            for (int i = m_text.length()-1; i >=0 ; i--) {
-                
-                glm::vec3 src = _anchorLine.getPositionAt(offset);
-                
-                if(screen.inside(src)){
-                    double rot = _anchorLine.getAngleAt(offset);
-                    
-                    glPushMatrix();
-                    glTranslated(src.x, src.y, src.z);
-                    
-                    glScalef(1,-1,1);
-                    glRotated(rot*RAD_TO_DEG, 0, 0, -1);
-                    
-                    glScaled(-1, -1, 1);
-                    glTranslated(-m_lettersWidth[i], 0, 0);
-                    
-                    glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( std::string(1,m_text[i]), mark.m_alpha );
-                    glPopMatrix();
-                    offset += m_lettersWidth[i];
-                } else {
-                    break;
-                }
-
-            }
-        } else {
-            
-            for (int i = 0; i < m_text.length(); i++) {
-                glm::vec3 src = _anchorLine.getPositionAt(offset);
-                if(screen.inside(src)){
-                    double rot = _anchorLine.getAngleAt(offset);
-                    
-                    glPushMatrix();
-                    glTranslated(src.x, src.y, src.z);
-                    
-                    glScalef(1,-1,1);
-                    glRotated(rot*RAD_TO_DEG, 0, 0, -1);
-                    
-                    glTranslatef(0., -m_label.height*0.5,0.);
-                    m_font->drawString( std::string(1,m_text[i]), mark.m_alpha );
-                    
-                    glPopMatrix();
-                    offset += m_lettersWidth[i];
-                } else {
-                    break;
-                }
             }
         }
     }

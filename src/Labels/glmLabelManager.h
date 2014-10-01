@@ -31,13 +31,11 @@ public:
     
     bool deleteLabel(const std::string &_idString);
     
-    void mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child );
     void mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child);
     
     void updateFont();
     void updateProjection();
     void updateCameraPosition( const glm::vec3 &_pos );
-    void updateOcclusions(float *_depthBuffer, int _width, int _height);
     
     void draw2D();
     void draw3D();
@@ -45,7 +43,7 @@ public:
     std::vector<glmFeatureLabelLineRef> lineLabels;
     std::vector<glmFeatureLabelPointRef> pointLabels;
     
-    float   minDistance, maxDistance;
+    float   minDistance;
     
     bool    bLines;
     bool    bPoints;

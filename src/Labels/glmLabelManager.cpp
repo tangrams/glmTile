@@ -9,7 +9,7 @@
 #include "glmLabelManager.h"
 #include <algorithm>
 
-glmLabelManager::glmLabelManager(): minDistance(50), maxDistance(500), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
+glmLabelManager::glmLabelManager(): minDistance(200), bLines(true), bPoints(true), bDebugLines(false), bUpdateSegments(false), bDebugPoints(false), bDebugField(false), bDebugGrid(false), m_bFontChanged(true), m_bChange(true) {
 }
 
 glmLabelManager::~glmLabelManager(){
@@ -66,10 +66,6 @@ void glmLabelManager::addPointLabel( glmFeatureLabelPointRef &_pointLabel ){
     }
     
     m_bChange = true;
-}
-
-void glmLabelManager::mergLineLabels( glmFeatureLabelLineRef &_father, glmFeatureLabelLineRef &_child ){
-    
 }
 
 void glmLabelManager::mergePointLabels( glmFeatureLabelPointRef &_father, glmFeatureLabelPointRef &_child){
@@ -226,51 +222,38 @@ void glmLabelManager::updateProjection(){
         if(bLines){
             for (auto &it : lineLabels) {
 
-                //  Clear Previus computed values
+                //  Match number of m_anchorLines
                 //
-                it->m_anchorLines.clear();
+                if (it->m_anchorLines.size() != it->shapes.size() ){
+                    it->m_anchorLines.resize(it->shapes.size());
+                }
                 
                 //  Project the road into 2D screen position
                 //
-                for (auto &iShape: it->shapes){
-                    glmAnchorLine line;
-                    for (int i = 0; i < iShape.size(); i++) {
-                        glm::vec3 v = glm::project(iShape[i], mvmatrix, projmatrix, viewport);
-                        if( v.z >= 0.0 && v.z <= 1.0){
-                            line.add(v);
-                        }
-                    }
+                it->bVisible = false;
+                for (int i = 0; i < it->m_anchorLines.size(); i++){
                     
-                    if(line.size()>1 && line.getLength() > 0.0 && it->m_label.width < line.getLength()){
-                        line.originalCentroid = iShape.getCentroid();
-                        it->m_anchorLines.push_back(line);
+                    it->m_anchorLines[i].project(it->shapes[i], mvmatrix, projmatrix, viewport);
+                    
+                    //  With only one line visible the line is tag as visible
+                    //
+                    if (it->m_anchorLines[i].m_bVisible){
+                        it->bVisible = true;
                     }
                 }
-                
-                //  There is something to show??
-                //
-                it->bVisible = it->m_anchorLines.size() > 0.0;
                 
                 if (it->bVisible) {
                     
                     //  Seed the positions for line labels
                     //
-                    for (auto &lines: it->m_anchorLines) {
+                    for (auto &line: it->m_anchorLines) {
                         
-                        //  Place the anchor points for the text labels
-                        //
+                        line.m_nSegmentLabels = it->seedAnchorOnSegmentsEvery(line, 50);
                         
-                        //  1.  First try to place all the text inside segments
-                        //      It will repeat that for each segment that have enought space.
-                        //      This works great for blocks
-                        it->seedAnchorOnSegmentsAt(lines,minDistance,maxDistance);
+//                        if(line.m_nSegmentLabels == 0){
+//                            it->seedAnchorsEvery(line, minDistance);
+//                        }
                         
-                        //  2.  If the previus step fail, place as much labels as it can
-                        //      This works better on rivers non-streight roads
-                        if (lines.marks.size() == 0) {
-                            it->seedAnchorsEvery(lines,minDistance,maxDistance);
-                            lines.bLetterByLetter  = true;
-                        }
                     }
                 }
                 
@@ -283,26 +266,6 @@ void glmLabelManager::updateProjection(){
         
         m_bProjectionChanged = false;
         m_bChange = false;
-    }
-}
-
-void glmLabelManager::updateOcclusions(float *_depthBuffer, int _width, int _height){
-    for (auto &it : pointLabels) {
-        if (it->bVisible) {
-            glm::vec3 pos = it->getAnchorPoint();
-            
-            if(pos.x>0 && pos.x<_width && pos.y>0 && pos.y<_height){
-                
-                int index = ((int)pos.y) * _width + (int)pos.x;
-                float depth = _depthBuffer[ index*3 ];
-                
-                if(pos.z == depth){
-                    it->bVisible = true;
-                } else {
-                    it->bVisible = false;
-                }
-            }
-        }
     }
 }
 
