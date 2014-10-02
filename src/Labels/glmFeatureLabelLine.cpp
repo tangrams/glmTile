@@ -27,7 +27,9 @@ void glmFeatureLabelLine::seedAnchorsEvery(glmAnchorLine &_anchorLine, float _mi
         updateCached();
     }
 
-    _anchorLine.m_nSegmentLabels += _anchorLine.fit(m_label.width+_minDistance, m_label.width+ _maxDistance , _anchorLine.getLength());
+    if ( _anchorLine.m_bVisible ){
+        _anchorLine.m_nSegmentLabels += _anchorLine.fit(m_label.width+_minDistance, m_label.width+ _maxDistance , _anchorLine.getLength());
+    }
 }
 
 void glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, float _minDistance, float _maxDistance){
@@ -39,14 +41,10 @@ void glmFeatureLabelLine::seedAnchorOnSegmentsEvery(glmAnchorLine &_anchorLine, 
     
     int count = 0;
     for (int i = 0 ; i < _anchorLine.m_segmentsMarks.size()-1; i++ ) {
-        if ( _anchorLine.m_segmentsMarks[i].m_bVisible || _anchorLine.m_segmentsMarks[i+1].m_bVisible ) {
-            
+        if ( _anchorLine.m_segmentsMarks[i].m_bVisible ){
             count += _anchorLine.m_segmentsMarks[i].fit( m_label.width+_minDistance, m_label.width+ _maxDistance , _anchorLine.getPolars()[i].r );
-        
         } else if ( _anchorLine.m_segmentsMarks[i].m_marks.size() > 0){
-        
             _anchorLine.m_segmentsMarks[i].clearMarks();
-        
         }
     }
     
