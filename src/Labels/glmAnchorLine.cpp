@@ -116,22 +116,22 @@ void glmAnchorLine::project( const glmPolyline &_poly, const glm::mat4x4 &_mvmat
     for (int i = 0; i < _poly.size(); i++) {
         
         glm::vec3 v = glm::project(_poly[i], _mvmatrix, _projmatrix, _viewport);
-        bool insideViewport = viewport.inside(v);
-        bool isVisible = ( v.z > 0.9 && v.z <= 1.0 && insideViewport);
+//        bool insideViewport = viewport.inside(v);
+        bool isVisible = ( v.z > 0.9 && v.z <= 1.0);// && insideViewport);
 
         m_points[i] = v;
         
-        if(!insideViewport || bClipPrev){
-            glmRectangle vp = glmRectangle(_viewport);
-            
-            if(i > 0){
-                vp.clip(m_points[i-1], m_points[i]);
-                bClipPrev = false;
-                isVisible = true;
-            } else {
-                bClipPrev = true;
-            }
-        }
+//        if(!insideViewport || bClipPrev){
+//            glmRectangle vp = glmRectangle(_viewport);
+//            
+//            if(i > 0){
+//                vp.clip(m_points[i-1], m_points[i]);
+//                bClipPrev = false;
+//                isVisible = true;
+//            } else {
+//                bClipPrev = true;
+//            }
+//        }
         
         //  With only one visible segment ALL the line is tag as visible
         //
