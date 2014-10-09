@@ -44,6 +44,7 @@ public:
     
     std::map< std::string, glm::vec4 > LayerColorPalette;
     
+    glm::vec3 m_geometryOffset;
     float lineWidth;
     
 private:
@@ -55,8 +56,6 @@ private:
     void lineJson2Polyline(Json::Value &_lineJson, glmPolyline &_poly, float _minHeight = 0.);
     void pointJson2Mesh(Json::Value &_lineJson, glmMesh &_mesh, float _radius, int _sides = 6, float _minHeight = 0.);
     void polygonJson2Mesh(Json::Value &_polygonJson, glmMesh &_mesh, float _minHeight, float _height);
-    
-    glm::vec3 m_geometryOffset;
     
     glmLabelManager *labelManager;
 };

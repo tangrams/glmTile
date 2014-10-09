@@ -67,6 +67,8 @@ void glmGeometryBuilder::setOffset(int _tileX, int _tileY, int _zoom){
     float n = powf(2.0f, _zoom);
     m_geometryOffset.x = lon2x((_tileX + 0.5) / n * 360.0f - 180.0f);
     m_geometryOffset.y = lat2y(atanf(sinhf(PI*(1-2*(_tileY+0.5)/n))) * 180.0f / PI);
+    
+//    std::cout << "Tile offset: " << m_geometryOffset.x << ", " << m_geometryOffset.y << std::endl;
 }
 
 void glmGeometryBuilder::load(int _tileX, int _tileY, int _zoom, glmTile &_tile){
