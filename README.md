@@ -1,12 +1,22 @@
-## 3D Labels experiments
+## 3D Labels Experiments
 
-The main trick is a 2D projection of the geometry to place the text. Like a HUD layer between the 3D geometry and the camera.
+###The Problem
 
+Labels in maps are a huge headache, and have been for a long time. There are lots of solutions for 2D mapping, but not so many when you work in 3D, and especially not when your map shifts between 2D and 3D. 
+
+###The Experiements
+
+The main trick is a 2D projection of the geometry to place the text, within the canvas. Like a heads-up display layer between the 3D geometry and the camera.
+
+Like this: 
+![HUD](images/Pg_24_top.JPG)
+
+In the canvas: 
 ![projection](images/projection.png)
 
 Pros:
 
-* Fonts don’t need to be resized (no need for SDF)
+* Fonts don’t need to be resized on zoom
 
 * No off-screen computations
 
@@ -14,7 +24,7 @@ Pros:
 
 Cons:
 
-* Occlusion becomes a problem
+* Occlusion becomes a problem: Should labels be visible through buildings? Which labels to prioritize, how to prioritize them? For now, these have no occlusion. 
 
 ### Line Labels
 
