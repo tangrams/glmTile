@@ -21,7 +21,7 @@ bool glmTile::load(int _tileX, int _tileY, int _zoom){
     zoom = _zoom;
     
     glmGeometryBuilder builder;
-    builder.setOffset(19294,24642,16);
+    builder.setOffset(_tileX,_tileY,_zoom);
     builder.load(tileX, tileY, zoom, *this);
 }
 

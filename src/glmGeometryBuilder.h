@@ -39,6 +39,8 @@ public:
     glmTile getFromFile(std::string _fileName);
     glmTile getFromWeb(int _tileX, int _tileY, int _zoom);
     
+    glm::vec3 getOffset();
+    
     void mergeFeature(const glmFeatureRef &_father, const glmFeatureRef &_child);
     void deleteFeature( glmTile &_tile, const std::string &_idString );
     

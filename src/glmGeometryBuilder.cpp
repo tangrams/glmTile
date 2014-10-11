@@ -156,6 +156,10 @@ void glmGeometryBuilder::load(Json::Value &_jsonRoot, glmTile & _tile){
     
 }
 
+glm::vec3 glmGeometryBuilder::getOffset(){
+    return m_geometryOffset;
+}
+
 glmTile glmGeometryBuilder::getFromFile(std::string _filename){
     
     std::ifstream inputStream(_filename.c_str(),std::ifstream::in);
